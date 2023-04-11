@@ -13,6 +13,8 @@ $RestMethodParameters = @{
     Method = 'POST'
 }
 
+write-host "RM" ($RestMethodParameters | Format-Table | Out-String)
+
 $ApiKey = Invoke-AzRestMethod @RestMethodParameters | 
     Select-Object -ExpandProperty Content | 
     ConvertFrom-Json | 
@@ -20,3 +22,6 @@ $ApiKey = Invoke-AzRestMethod @RestMethodParameters |
     Select-Object -ExpandProperty ApiKey
 
 Write-Host "##vso[task.setvariable variable=token;issecret=true]$ApiKey"
+
+
+
