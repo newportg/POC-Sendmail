@@ -1,0 +1,97 @@
+# Node.js with Angular
+# Build a Node.js project that uses Angular.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+  variables:
+    project: '$(System.DefaultWorkingDirectory)Src/Sendmail/Sendmail.csproj'
+    deployProject: 'Deploy/AzureResourceGroup/AzureResourceGroup.deployproj'
+    buildConfiguration: 'Release'
+
+steps:
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo  '$(System.DefaultWorkingDirectory)'
+      dir $(System.DefaultWorkingDirectory)/Src/Sendmail
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '16.x'
+  displayName: 'Install Node.js'
+
+#########
+# Build
+#########
+
+- task: CmdLine@2
+  inputs:
+    workingDirectory: 'Src/Viewer-App'
+    script: |
+      npm install --location=global @angular/cli
+      npm install
+      ng build 
+  displayName: 'npm install and build'
+
+- task: UseDotNet@2
+  displayName: Use .NET Core sdk 6.x
+  inputs:
+      version: 6.x
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: MSBuild@1
+  displayName: 'Build Pre ARM'
+  inputs:
+    solution: '$(deployProject)'
+
+#########
+# Publish
+#########
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: dist'
+  inputs:
+    PathtoPublish: 'Src/Viewer-App/dist'
+    ArtifactName: dist
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Artifact: Build'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: True
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: ARMTemplate'
+  inputs:
+    PathtoPublish: Deploy/AzureResourceGroup
+    ArtifactName: ARMTemplate
+
+
+
+

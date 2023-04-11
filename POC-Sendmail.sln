@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{1BB3BB69-4D40-468E-9FC5-A0CBF06DF878}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{40259B79-8E6E-4287-AE40-D67B2F86C030}"
+	ProjectSection(SolutionItems) = preProject
+		Build\azure-pipelines.yml = Build\azure-pipelines.yml
+		Build\Build-Pipeline.yml = Build\Build-Pipeline.yml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{3F1A4657-3768-4123-9EF8-DDC86BD9F18B}"
 EndProject
