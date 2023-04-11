@@ -35,7 +35,7 @@ namespace Sendmail
         //}
 
         [Function("negotiate")]
-        public static HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
+        public static HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "serverless")] string connectionInfo)
         {
             var response = req.CreateResponse(HttpStatusCode.OK);
