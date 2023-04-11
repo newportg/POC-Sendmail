@@ -1,0 +1,1 @@
+C:\Users\NEWPORTG\source\Personal\Azure Functions\POC-Sendmail\Deploy\AzureResourceGroup\obj\Debug\AzureResourceGroup.deployproj.CoreCompileInputs.cache

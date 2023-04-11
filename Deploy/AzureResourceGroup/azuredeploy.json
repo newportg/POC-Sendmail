@@ -1,8 +1,755 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
-  "variables": {},
-  "resources": [],
-  "outputs": {}
+  "parameters": {
+    "para_acronym_region": {
+      "type": "string",
+      "allowedValues": [
+        "ne",
+        "we"
+      ],
+      "defaultValue": "ne"
+    },
+    "para_target_env": {
+      "type": "string",
+      "allowedValues": [
+        "vse",
+        "dev",
+        "alp",
+        "bra",
+        "cha",
+        "pre",
+        "uat",
+        "prd"
+      ],
+      "defaultValue": "vse"
+    },
+    "para_appFamily_name": {
+      "type": "string",
+      "maxLength": 3
+    },
+    "para_application_name": {
+      "type": "string",
+      "maxLength": 12
+    },
+    "para_svcPlan": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "para_svcPlanSku": {
+      "type": "string",
+      "defaultValue": "Dynamic"
+    },
+    "para_svcPlanSize": {
+      "type": "string",
+      "defaultValue": "Y1"
+    },
+    "para_svcPlanFamily": {
+      "type": "string",
+      "defaultValue": "Y"
+    },
+    "para_svcPlanCapacity": {
+      "type": "string",
+      "defaultValue": "0"
+    },
+    "para_kvSecretsObject": { "type": "object" },
+    "para_alwaysOn": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "para_funcState": {
+      "type": "string",
+      "defaultValue": "Stopped"
+    },
+    "para_role1": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    },
+    "para_role2": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    },
+    "para_role3": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "namingConvention": {
+      "prefixes": {
+        "Storage": "st",
+        "FunctionApp": "func",
+        "AppInsights": "appi",
+        "AppServicePlan": "plan",
+        "KeyVault": "kv",
+        "NetworkInterface": "nic",
+        "PrivateEndpoint": "pe",
+        "ResourceGroup": "rg",
+        "SqlServer": "sql",
+        "Identity": "id",
+        "EventGridTopic": "evgt",
+        "SignalR": "sigr",
+        "StaticWebApp": "stapp",
+        "EventHubNS": "evhns",
+        "EventHub": "evh"
+      }
+    },
+    "var_sub_id": "[subscription().subscriptionId]",
+    "var_ten_id": "[subscription().tenantId]",
+    "var_env_region_delim": "[ tolower(concat(parameters('para_target_env'), '-', parameters('para_acronym_region')))]",
+    "var_env_region": "[tolower(concat(parameters('para_target_env'), '-', parameters('para_acronym_region')))]",
+
+    "var_application_name_delim": "[ tolower(concat( parameters('para_appFamily_name'), '-', parameters('para_application_name'), '-'))]",
+    "var_application_name": "[ tolower(concat(parameters('para_application_name')))]",
+
+    "var_str_name": "[concat( variables('namingConvention').prefixes.Storage, take(tolower(parameters('para_application_name')), 12), tolower(parameters('para_target_env')), tolower(parameters('para_acronym_region')))]",
+    "var_str_resId": "[resourceId(resourceGroup().Name,'Microsoft.Storage/storageAccounts', variables('var_str_name'))]",
+
+    "var_kv_name": "[concat(variables('namingConvention').prefixes.KeyVault, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_azf_name": "[concat(variables('namingConvention').prefixes.FunctionApp, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_appin_name": "[concat(variables('namingConvention').prefixes.AppInsights, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_id_name": "[concat(variables('namingConvention').prefixes.Identity, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_egt_name": "[concat(variables('namingConvention').prefixes.EventGridTopic, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_sr_name": "[concat(variables('namingConvention').prefixes.SignalR, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_swa_name": "[concat(variables('namingConvention').prefixes.StaticWebApp, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_evhns_name": "[concat(variables('namingConvention').prefixes.EventHubNS, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+    "var_evh_name": "[concat(variables('namingConvention').prefixes.EventHub, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
+
+    // If a para_SvcPlan is passed then use that, else create a new name following std format
+    "svcpln_name": "[concat(variables('namingConvention').prefixes.AppServicePlan, '-', variables('var_application_name_delim'), tolower(variables('var_env_region_delim')))]",
+    "var_svcpln_name": "[if(equals(parameters('para_svcPlan'),''), variables('svcpln_name'), parameters('para_svcPlan'))]",
+
+    "var_uaid_name": "[concat('/subscriptions/',variables('var_sub_id'),'/resourcegroups/', resourceGroup().Name, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', tolower(variables('var_id_name')))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-01-01",
+      "dependsOn": [],
+      "kind": "Storage",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('var_str_name')]",
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "resources": [],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "tags": {
+        "displayName": "StorageAcct",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Storage/storageAccounts"
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('var_str_name'))]"
+      ],
+      "kind": "app",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('var_svcpln_name')]",
+      "properties": {
+        "adminSiteName": "",
+        "name": "[variables('var_svcpln_name')]",
+        "perSiteScaling": false,
+        "reserved": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0,
+        "workerTierName": ""
+      },
+      "scale": null,
+      "sku": {
+        "name": "[parameters('para_svcPlanSize')]",
+        "tier": "[parameters('para_svcPlanSku')]",
+        "size": "[parameters('para_svcPlanSize')]",
+        "family": "[parameters('para_svcPlanFamily')]",
+        "capacity": "[parameters('para_svcPlanCapacity')]"
+      },
+      "tags": {
+        "displayName": "Service Plan/ Farm",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Web/serverfarms"
+    },
+    {
+      "apiVersion": "2015-05-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('var_str_name'))]"
+      ],
+      "kind": "app",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('var_appin_name')]",
+      "properties": {
+        "Application_Type": "web",
+        "ApplicationId": "[variables('var_appin_name')]"
+      },
+      "tags": {
+        "displayName": "AppInsightsComponent",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Insights/components"
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('var_id_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Microsoft.ManagedIdentity/userAssignedIdentities",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2021-03-01",
+      "name": "[variables('var_swa_name')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "location": "West Europe",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('var_uaid_name')]": {}
+        }
+      },
+      "properties": {
+        "repositoryUrl": "https://dev.azure.com/Kf-GaryNewport/POC-Sendmail/_git/POC-Sendmail",
+        "branch": "master",
+        "stagingEnvironmentPolicy": "Enabled",
+        "allowConfigFileUpdates": true,
+        "provider": "DevOps",
+        "enterpriseGradeCdnStatus": "Disabled"
+      },
+      "tags": {
+        "displayName": "Microsoft.Web/staticSites",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+    {
+      "apiVersion": "2016-08-01",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', variables('var_svcpln_name'))]",
+        "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))]"
+      ],
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('var_uaid_name')]": {}
+        }
+      },
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('var_azf_name')]",
+      "properties": {
+        "state": "[parameters('para_funcState')]",
+        "name": "[variables('var_azf_name')]",
+        "siteConfig": {
+          "alwaysOn": "[parameters('para_alwaysOn')]"
+        },
+        "netFrameworkVersion": "v6.0",
+        "clientAffinityEnabled": false,
+        "serverFarmId": "[variables('var_svcpln_name')]",
+        //        "hostingEnvironment": "[variables('var_svcpln_env')]",
+        "hostNameSslStates": [],
+        "httpsOnly": true
+      },
+      "resources": [
+      ],
+      "tags": {
+        "displayName": "[concat('Microsoft.Web/sites - Function - ', variables('var_azf_name'))]",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Web/sites"
+    },
+    {
+      "apiVersion": "2021-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('var_azf_name'), '/web')]",
+      "properties": {
+        "alwaysOn": "[parameters('para_alwaysOn')]",
+        "netFrameworkVersion": "v6.0"
+        //"vnetname": "[parameters('para_vnet_name')]"
+      },
+      "tags": {
+        "displayName": "Az Function web",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Web/sites/config"
+    },
+    {
+      "apiVersion": "2021-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('var_azf_name'), '/metadata')]",
+      "properties": {
+        "CURRENT_STACK": "dotnet"
+      },
+      "tags": {
+        "displayName": "Az Function metadata",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Web/sites/config"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[variables('var_kv_name')]",
+      "properties": {
+        "accessPolicies": [
+          //Add Hub-Sec-DevOps-Grp able to view it.
+          {
+            "tenantId": "[variables('var_ten_id')]",
+            "objectId": "339effdf-1ac9-44e9-b05c-3456907adaa8",
+            "permissions": {
+              "certificates": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ],
+              "keys": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "Decrypt",
+                "Encrypt",
+                "UnwrapKey",
+                "WrapKey",
+                "Verify",
+                "Sign",
+                "Purge"
+              ],
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "Purge"
+              ]
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[variables('var_ten_id')]"
+      },
+      "scale": null,
+      "tags": {
+        "displayName": "Key Vault",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('var_str_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/StorageConnectionString')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('var_str_name'),';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('var_str_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';')]"
+      },
+      "tags": {
+        "displayName": "Key Vault Secret",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "copy": {
+        "name": "secretsCopy",
+        "count": "[length(parameters('para_kvSecretsObject').secrets)]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('var_kv_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/', parameters('para_kvSecretsObject').secrets[copyIndex()].secretName)]",
+      "properties": {
+        "value": "[parameters('para_kvSecretsObject').secrets[copyIndex()].secretValue]"
+      },
+      "tags": {
+        "displayName": "Key Vault Secrets",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2021-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
+        "[resourceId('Microsoft.KeyVault/vaults/', variables('var_kv_name'))]",
+        "secretsCopy",
+        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('var_azf_name'),'/appsettings')]",
+      "properties": {
+        "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('var_appin_name'))).InstrumentationKey]",
+        "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
+        "FUNCTIONS_EXTENSION_VERSION": "~4",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+
+        "AzureStorageAcct": "[variables('var_str_name')]",
+        "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]"
+        //"cors": {
+        //  "allowedOrigins": [
+        //    //"[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
+        //    "*",
+        //    "http://localhost:4200"
+        //  ],
+        //  "supportCredentials": false
+        //}
+        //"cors": {
+        //  "allowedOrigins": [
+        //    "*",
+        //    "http://localhost:4200"
+        //  ],
+        //  "supportCredentials": false
+        //},
+        //"apiDefinition": {
+        //  "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
+        //}
+      },
+      "tags": {
+        "displayName": "AppSettings",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.Web/sites/config"
+    },
+
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[variables('var_evh_name')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "properties": {
+        "minimumTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false,
+        "zoneRedundant": true,
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0,
+        "kafkaEnabled": false
+      },
+      "tags": {
+        "displayName": "Microsoft.EventHub/namespaces",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/authorizationrules",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evh_name'), '/RootManageSharedAccessKey')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evh_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      },
+      "tags": {
+        "displayName": "Microsoft.EventHub/namespaces/authorizationrules",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evh_name'), '/', variables('var_evh_name'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evh_name'))]"
+      ],
+      "properties": {
+        "retentionDescription": {
+          "cleanupPolicy": "Delete",
+          "retentionTimeInHours": 1
+        },
+        "messageRetentionInDays": 1,
+        "partitionCount": 2,
+        "status": "Active"
+      },
+      "tags": {
+        "displayName": "Microsoft.EventHub/namespaces/eventhubs",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/networkRuleSets",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evh_name'), '/default')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evh_name'))]"
+      ],
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "defaultAction": "Allow",
+        "virtualNetworkRules": [],
+        "ipRules": []
+      },
+      "tags": {
+        "displayName": "Microsoft.EventHub/namespaces/networkRuleSets",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[parameters('para_role1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f526a384-b230-433a-b45c-95f59c4a2dec')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+      },
+      "tags": {
+        "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Owner",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[parameters('para_role2')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+      },
+      "tags": {
+        "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Receiver",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[parameters('para_role3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '21090545-7ca7-4776-b22c-e363652d74d2')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+      },
+      "tags": {
+        "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Reader",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+    {
+      "type": "Microsoft.SignalRService/SignalR",
+      "apiVersion": "2022-02-01",
+      "name": "[variables('var_sr_name')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_S1",
+        "tier": "Standard",
+        "size": "S1",
+        "capacity": 1
+      },
+      "kind": "SignalR",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('var_uaid_name')]": {}
+        }
+      },
+      "properties": {
+        "tls": {
+          "clientCertEnabled": false
+        },
+        "features": [
+          {
+            "flag": "ServiceMode",
+            "value": "Serverless",
+            "properties": {}
+          },
+          {
+            "flag": "EnableConnectivityLogs",
+            "value": "True",
+            "properties": {}
+          }
+        ],
+        "cors": {
+          "allowedOrigins": [
+            "*"
+          ]
+        },
+        "upstream": {},
+        "networkACLs": {
+          "defaultAction": "Deny",
+          "publicNetwork": {
+            "allow": [
+              "ServerConnection",
+              "ClientConnection",
+              "RESTAPI",
+              "Trace"
+            ]
+          },
+          "privateEndpoints": []
+        },
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false,
+        "disableAadAuth": false
+      },
+      "tags": {
+        "displayName": "Microsoft.SignalRService/SignalR",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/DeploymentToken')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat(listSecrets(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')), '2019-08-01').properties.apiKey)]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - SWA DeploymentToken",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/SWADefaultHostName')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat(reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - SWA DefaultHostName",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.SignalRService/SignalR', variables('var_sr_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/SRConnectionString')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat(listKeys(resourceId('Microsoft.SignalRService/SignalR', variables('var_sr_name')), '2020-05-01').primaryConnectionString)]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - SR ConnectionStringe",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    }
+  ],
+  "outputs": {
+    "result": {
+      "type": "string",
+      "value": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
+    }
+  }
 }
