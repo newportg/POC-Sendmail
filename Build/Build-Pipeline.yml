@@ -59,7 +59,7 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: MSBuild@1
-  displayName: 'Build Pre ARM'
+  displayName: 'Build ARM'
   inputs:
     solution: '$(deployProject)'
 
