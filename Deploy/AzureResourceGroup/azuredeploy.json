@@ -606,23 +606,23 @@
     //    "project": "[parameters('para_application_name')]"
     //  }
     //},
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2022-04-01",
-      "name": "[parameters('para_role3')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '21090545-7ca7-4776-b22c-e363652d74d2')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-      },
-      "tags": {
-        "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Reader",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    },
+    //{
+    //  "type": "Microsoft.Authorization/roleAssignments",
+    //  "apiVersion": "2022-04-01",
+    //  "name": "[parameters('para_role3')]",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+    //  ],
+    //  "properties": {
+    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '21090545-7ca7-4776-b22c-e363652d74d2')]",
+    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+    //  },
+    //  "tags": {
+    //    "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Reader",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  }
+    //},
 
     {
       "type": "Microsoft.SignalRService/SignalR",
