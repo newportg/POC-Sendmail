@@ -36,8 +36,11 @@ namespace Sendmail
 
         [Function("negotiate")]
         public static HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "serverless")] string connectionInfo)
+            [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo,
+            ILogger log)
         {
+            log.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
+
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json");
             response.WriteString(connectionInfo);
