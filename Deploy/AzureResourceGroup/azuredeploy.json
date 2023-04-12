@@ -291,8 +291,19 @@
       "name": "[concat(variables('var_azf_name'), '/web')]",
       "properties": {
         "alwaysOn": "[parameters('para_alwaysOn')]",
-        "netFrameworkVersion": "v6.0"
+        "netFrameworkVersion": "v6.0",
         //"vnetname": "[parameters('para_vnet_name')]"
+        "cors": {
+          "allowedOrigins": [
+            //"https://red-island-06f19de03.2.azurestaticapps.net",
+            "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
+            "http://localhost:4200"
+          ],
+          "supportCredentials": true
+        },
+        "apiDefinition": {
+          "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]",
+        }
       },
       "tags": {
         "displayName": "Az Function web",
@@ -457,25 +468,6 @@
         "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
         "AzureSignalRConnectionString": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SRConnectionString)')]",
         "SWADefaultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefaultHostName)')]"
-
-        //"cors": {
-        //  "allowedOrigins": [
-        //    //"[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
-        //    "*",
-        //    "http://localhost:4200"
-        //  ],
-        //  "supportCredentials": false
-        //}
-        //"cors": {
-        //  "allowedOrigins": [
-        //    "*",
-        //    "http://localhost:4200"
-        //  ],
-        //  "supportCredentials": false
-        //},
-        //"apiDefinition": {
-        //  "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
-        //}
       },
       "tags": {
         "displayName": "AppSettings",
