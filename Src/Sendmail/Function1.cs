@@ -8,6 +8,7 @@ using Azure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Sendmail
@@ -35,6 +36,8 @@ namespace Sendmail
         //}
 
         [Function("negotiate")]
+        [OpenApiOperation(operationId: "negotiate")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
         public static SignalRConnectionInfo Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo,
             ILogger log)
