@@ -40,7 +40,7 @@ namespace Sendmail
         [OpenApiOperation(operationId: "negotiate")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
         public HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "serverless")] string connectionInfo)
+            [SignalRConnectionInfoInput(HubName = "serverless", ConnectionStringSetting = "AzureSignalRConnectionString")] string connectionInfo)
         {
             _logger.LogInformation($"SignalR connection string = '{Environment.GetEnvironmentVariable("AzureSignalRConnectionString")}'");
             _logger.LogInformation($"SignalR Connection URL = '{connectionInfo}'");
