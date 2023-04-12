@@ -6,7 +6,7 @@
     "CommunicationServicesConnectionString": "endpoint=https://cs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=cdr6qnetMeC6R1Y4iGnMyINfxvdGF3cb6Pt87F+BMifRsxCvVsqtb4F1ED/wfRbpczk4SBf+iqAw1apOt0CNOQ==",
     "eventHubName": "evhns-poc-sendemail-vse-ne",
     "EventHubConnectionAppSetting": "Endpoint=sb://evhns-poc-sendemail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=QlKDUChRO0EP0WIMI37Vgt9e2+vPgkX2h+AEhK7QDNo=",
-    "AzureSignalRConnectionString": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=D5pbpmOpuTsMnPnk/v6amQ3K3lv/Uvy20uPX0+OKjyY=;Version=1.0;"
+    "AzureSignalRConnectionString": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=CQaCRtEEf/DIMDWAzA+PhwV+ARBcC/ndsDUasc1ZVdY=;Version=1.0;"
   },
   "Host": {
     "CORS": "http://localhost:4200",

@@ -28,8 +28,8 @@ namespace KnightFrank.Hub.Instructions
                             Info = new OpenApiInfo()
                             {
                                 Version = "1.0.0",
-                                Title = "Hub Instructions",
-                                Description = "Instructions API",
+                                Title = "Poc Sendmail",
+                                Description = "Sendmail API",
                                 TermsOfService = new Uri("https://www.knightfrank.com/legals"),
                                 Contact = new OpenApiContact()
                                 {

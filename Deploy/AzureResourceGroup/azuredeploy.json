@@ -454,7 +454,10 @@
 
         "AzureStorageAcct": "[variables('var_str_name')]",
         "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
-        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]"
+        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
+        "AzureSignalRConnectionString": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SRConnectionString)')]",
+        "SWADefaultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefaultHostName)')]"
+
         //"cors": {
         //  "allowedOrigins": [
         //    //"[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
