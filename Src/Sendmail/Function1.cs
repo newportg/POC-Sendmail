@@ -5,6 +5,7 @@ using Azure;
 using Azure.Communication.Email;
 using Azure.Core;
 using Azure.Identity;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -37,10 +38,12 @@ namespace Sendmail
 
         [Function("negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
         public SignalRConnectionInfo Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo)
         {
+            _logger.LogInformation($"SignalR connection string = '{Environment.GetEnvironmentVariable("AzureSignalRConnectionString")}'");
+
             _logger.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
 
             //var response = req.CreateResponse(HttpStatusCode.OK);
