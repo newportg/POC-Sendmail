@@ -38,11 +38,10 @@ namespace Sendmail
         [Function("negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
-        public static SignalRConnectionInfo Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo,
-            ILogger log)
+        public SignalRConnectionInfo Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+            [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo)
         {
-            log.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
+            _logger.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
 
             //var response = req.CreateResponse(HttpStatusCode.OK);
             //response.Headers.Add("Content-Type", "application/json");
