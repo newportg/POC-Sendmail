@@ -302,7 +302,7 @@
           "supportCredentials": true
         },
         "apiDefinition": {
-          "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]",
+          "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]"
         }
       },
       "tags": {
