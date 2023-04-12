@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace KnightFrank.Hub.Instructions
+namespace Sendmail
 {
     public class Program
     {
