@@ -285,7 +285,8 @@
     {
       "apiVersion": "2021-01-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
+        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
       ],
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('var_azf_name'), '/web')]",
@@ -744,7 +745,7 @@
   "outputs": {
     "result": {
       "type": "string",
-      "value": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
+      "value": "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
     }
   }
 }

@@ -38,7 +38,7 @@ namespace Sendmail
 
         [Function("negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
         public HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "serverless")] string connectionInfo)
         {
