@@ -36,20 +36,30 @@ namespace Sendmail
         //    return connectionInfo;
         //}
 
-        [Function("negotiate")]
+        [Function("Negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
-        public HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "cloudEventSchemaHub", ConnectionStringSetting = "AzureSignalRConnectionString")] string connectionInfo)
+        public static string Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
+            [SignalRConnectionInfoInput(HubName = "serverless")] string connectionInfo)
         {
-            _logger.LogInformation($"SignalR connection string = '{Environment.GetEnvironmentVariable("AzureSignalRConnectionString")}'");
-            _logger.LogInformation($"SignalR Connection URL = '{connectionInfo}'");
-
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "application/json");
-            response.WriteString(connectionInfo);
-            return response;
+            // The serialization of the connection info object is done by the framework. It should be camel case. The SignalR client respects the camel case response only.
+            return connectionInfo;
         }
+
+        //[Function("negotiate")]
+        //[OpenApiOperation(operationId: "negotiate")]
+        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
+        //public HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequestData req,
+        //    [SignalRConnectionInfoInput(HubName = "cloudEventSchemaHub", ConnectionStringSetting = "AzureSignalRConnectionString")] string connectionInfo)
+        //{
+        //    _logger.LogInformation($"SignalR connection string = '{Environment.GetEnvironmentVariable("AzureSignalRConnectionString")}'");
+        //    _logger.LogInformation($"SignalR Connection URL = '{connectionInfo}'");
+
+        //    var response = req.CreateResponse(HttpStatusCode.OK);
+        //    response.Headers.Add("Content-Type", "application/json");
+        //    response.WriteString(connectionInfo);
+        //    return response;
+        //}
 
         //[Function("negotiate")]
         //[OpenApiOperation(operationId: "negotiate")]
