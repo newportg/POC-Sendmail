@@ -35,16 +35,16 @@ namespace Sendmail
         //}
 
         [Function("negotiate")]
-        public static HttpResponseData Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+        public static SignalRConnectionInfo Negotiate([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "serverless")] SignalRConnectionInfo connectionInfo,
             ILogger log)
         {
             log.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
 
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "application/json");
-            response.WriteString(connectionInfo);
-            return response;
+            //var response = req.CreateResponse(HttpStatusCode.OK);
+            //response.Headers.Add("Content-Type", "application/json");
+            //response.WriteString(connectionInfo);
+            return connectionInfo;
         }
 
 
