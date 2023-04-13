@@ -246,7 +246,7 @@
     },
 
     {
-      "apiVersion": "2016-08-01",
+      "apiVersion": "2021-02-01",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', variables('var_svcpln_name'))]",
         "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))]"
@@ -257,13 +257,13 @@
           "[variables('var_uaid_name')]": {}
         }
       },
-      "keyVaultReferenceIdentity": "[variables('var_uaid_name')]",
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "name": "[variables('var_azf_name')]",
       "properties": {
         "state": "[parameters('para_funcState')]",
         "name": "[variables('var_azf_name')]",
+        "keyVaultReferenceIdentity": "[variables('var_uaid_name')]",
         "siteConfig": {
           "alwaysOn": "[parameters('para_alwaysOn')]"
         },

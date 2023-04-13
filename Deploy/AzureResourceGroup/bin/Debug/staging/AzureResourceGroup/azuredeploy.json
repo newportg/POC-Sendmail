@@ -246,7 +246,7 @@
     },
 
     {
-      "apiVersion": "2016-08-01",
+      "apiVersion": "2021-02-01",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', variables('var_svcpln_name'))]",
         "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))]"
@@ -263,6 +263,7 @@
       "properties": {
         "state": "[parameters('para_funcState')]",
         "name": "[variables('var_azf_name')]",
+        "keyVaultReferenceIdentity": "[variables('var_uaid_name')]",
         "siteConfig": {
           "alwaysOn": "[parameters('para_alwaysOn')]"
         },
@@ -276,7 +277,7 @@
       "resources": [
       ],
       "tags": {
-        "displayName": "[concat('Microsoft.Web/sites - Function - ', variables('var_azf_name'))]",
+        "displayName": "[concat('Function - ', variables('var_azf_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
@@ -285,17 +286,28 @@
     {
       "apiVersion": "2021-01-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
+        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
       ],
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('var_azf_name'), '/web')]",
       "properties": {
         "alwaysOn": "[parameters('para_alwaysOn')]",
-        "netFrameworkVersion": "v6.0"
+        "netFrameworkVersion": "v6.0",
         //"vnetname": "[parameters('para_vnet_name')]"
+        "cors": {
+          "allowedOrigins": [
+            "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
+            "http://localhost:4200"
+          ],
+          "supportCredentials": true
+        },
+        "apiDefinition": {
+          "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]"
+        }
       },
       "tags": {
-        "displayName": "Az Function web",
+        "displayName": "[concat('Function Web- ', variables('var_azf_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
@@ -449,33 +461,18 @@
         "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('var_appin_name'))).InstrumentationKey]",
         "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
+        "WEBSITE_RUN_FROM_PACKAGE": 1,
         "FUNCTIONS_EXTENSION_VERSION": "~4",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
 
         "AzureStorageAcct": "[variables('var_str_name')]",
         "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
-        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]"
-        //"cors": {
-        //  "allowedOrigins": [
-        //    //"[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
-        //    "*",
-        //    "http://localhost:4200"
-        //  ],
-        //  "supportCredentials": false
-        //}
-        //"cors": {
-        //  "allowedOrigins": [
-        //    "*",
-        //    "http://localhost:4200"
-        //  ],
-        //  "supportCredentials": false
-        //},
-        //"apiDefinition": {
-        //  "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
-        //}
+        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
+        "AzureSignalRConnectionString": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SRConnectionString)')]",
+        "SWADefaultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefaultHostName)')]"
       },
       "tags": {
-        "displayName": "AppSettings",
+        "displayName": "[concat('Function Settings- ', variables('var_azf_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
@@ -502,7 +499,7 @@
         "kafkaEnabled": false
       },
       "tags": {
-        "displayName": "Microsoft.EventHub/namespaces",
+        "displayName": "[concat('EventHub Namespace - ', variables('var_evh_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
@@ -523,7 +520,7 @@
         ]
       },
       "tags": {
-        "displayName": "Microsoft.EventHub/namespaces/authorizationrules",
+        "displayName": "[concat('EventHub authorization rules - ', variables('var_evh_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
@@ -546,7 +543,7 @@
         "status": "Active"
       },
       "tags": {
-        "displayName": "Microsoft.EventHub/namespaces/eventhubs",
+        "displayName": "[concat('EventHub hub - ', variables('var_evh_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
@@ -566,7 +563,7 @@
         "ipRules": []
       },
       "tags": {
-        "displayName": "Microsoft.EventHub/namespaces/networkRuleSets",
+        "displayName": "[concat('EventHub network Rule Sets - ', variables('var_evh_name'))]",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
@@ -614,11 +611,11 @@
     //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
     //  ],
     //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '21090545-7ca7-4776-b22c-e363652d74d2')]",
+    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
     //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
     //  },
     //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Reader",
+    //    "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Secrets User",
     //    "environment": "[parameters('para_target_env')]",
     //    "project": "[parameters('para_application_name')]"
     //  }
@@ -749,7 +746,7 @@
   "outputs": {
     "result": {
       "type": "string",
-      "value": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/swagger/docs/v1')]"
+      "value": "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
     }
   }
 }
