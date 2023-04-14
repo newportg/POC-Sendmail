@@ -13,7 +13,7 @@ namespace Sendmail
 
         public Sendmail(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger("negotiate");
+            _logger = loggerFactory.CreateLogger("Sendmail");
         }
 
         [Function("negotiate")]
@@ -50,3 +50,4 @@ namespace Sendmail
 
     }
 }
+

@@ -6,8 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
 using System.Reflection;
 
 namespace Sendmail
@@ -17,8 +15,9 @@ namespace Sendmail
         public static void Main()
         {
             var host = new HostBuilder()
-                .ConfigureFunctionsWorkerDefaults()
+                .ConfigureFunctionsWorkerDefaults(worker => worker.UseNewtonsoftJson())
                 .ConfigureOpenApi()
+
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<IOpenApiConfigurationOptions>(_ =>
