@@ -1,3 +1,5 @@
+using Azure;
+using Azure.Communication.Email;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -22,7 +24,7 @@ namespace Sendmail
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
         public SignalRConnectionInfo Negotiate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "HubValue", ConnectionStringSetting = "AzureSignalRConnectionString")] SignalRConnectionInfo connectionInfo)
+            [SignalRConnectionInfoInput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")] SignalRConnectionInfo connectionInfo)
         {
             _logger.LogInformation($"SignalR Connection URL = '{connectionInfo.Url}'");
             return connectionInfo;
@@ -33,7 +35,7 @@ namespace Sendmail
         [OpenApiRequestBody(contentType: "text/plain", bodyType: typeof(string), Description = "message", Example = typeof(string))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRMessageAction), Description = "The OK response")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
-        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "AzureSignalRConnectionString")]
+        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
         public SignalRMessageAction BroadcastToAll([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
             using var bodyReader = new StreamReader(req.Body);
@@ -47,6 +49,65 @@ namespace Sendmail
             };
 
         }
+
+        [Function("SendMail")]
+        [OpenApiOperation(operationId: "SendMail")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(HttpResponseData), Description = "The OK response")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
+        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+
+            // Find your Communication Services resource in the Azure portal
+            var connectionString = Environment.GetEnvironmentVariable("CommunicationServicesCS");
+            EmailClient emailClient = new EmailClient(connectionString);
+
+            // ID Token
+            //string endpoint = "https://cs-poc-sendmail-vse-ne.communication.azure.com";
+            //TokenCredential tokenCredential = new DefaultAzureCredential();
+            //tokenCredential = new DefaultAzureCredential();
+            //EmailClient emailClient = new EmailClient(new Uri(endpoint), tokenCredential);
+
+            try
+            {
+                var emailSendOperation = emailClient.Send(
+                    wait: WaitUntil.Completed,
+                    senderAddress: Environment.GetEnvironmentVariable("FromEmailAddress"), // The email address of the domain registered with the Communication Services resource
+                    recipientAddress: "gary.newport@zoomalong.co.uk",
+
+                    subject: "This is the subject",
+                    htmlContent: "<html><body>This is the html body</body></html>");
+                Console.WriteLine($"Email Sent. Status = {emailSendOperation.Value.Status}");
+
+                /// Get the OperationId so that it can be used for tracking the message for troubleshooting
+                string operationId = emailSendOperation.Id;
+                Console.WriteLine($"Email operation id = {operationId}");
+                response.WriteString($"Email operation id = {operationId}");
+            }
+            catch (RequestFailedException ex)
+            {
+                /// OperationID is contained in the exception message and can be used for troubleshooting purposes
+                Console.WriteLine($"Email send operation failed with error code: {ex.ErrorCode}, message: {ex.Message}");
+                response.WriteString($"Email send operation failed with error code: {ex.ErrorCode}, message: {ex.Message}");
+            }
+
+            return response;
+        }
+
+        //[Function("EventHubTriggerCSharp")]
+        //public static string evhtrigger([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input,
+        //     FunctionContext context)
+        //{
+        //    var logger = context.GetLogger("EventHubsFunction");
+
+        //    logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
+
+        //    var message = $"Output message created at {DateTime.Now}";
+        //    return message;
+        //}
 
     }
 }
