@@ -97,17 +97,19 @@ namespace Sendmail
             return response;
         }
 
-        //[Function("EventHubTriggerCSharp")]
-        //public static string evhtrigger([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input,
-        //     FunctionContext context)
-        //{
-        //    var logger = context.GetLogger("EventHubsFunction");
+        [Function("EventHubTriggerCSharp")]
+        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
+        public SignalRMessageAction evhtrigger([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input,
+             FunctionContext context)
+        {
+            _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
-        //    logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
-
-        //    var message = $"Output message created at {DateTime.Now}";
-        //    return message;
-        //}
+            return new SignalRMessageAction("newEvent")
+            {
+                // broadcast to all the connected clients without specifying any connection, user or group.
+                Arguments = new[] { input[0] },
+            };
+        }
 
     }
 }
