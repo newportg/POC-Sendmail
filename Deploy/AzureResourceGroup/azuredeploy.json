@@ -798,7 +798,7 @@
       "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
       "properties": {
         "contentType": "text/plain",
-        "value": "[variables('var_evhns_name')]"
+        "value": "[variables('var_evh_name')]"
       },
       "tags": {
         "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
