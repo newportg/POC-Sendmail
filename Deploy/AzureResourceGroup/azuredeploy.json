@@ -913,7 +913,7 @@
         "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
         "topicType": "Microsoft.Communication.CommunicationServices"
       }
-    },
+    }
     //{
     //  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
     //  "apiVersion": "2022-06-15",
