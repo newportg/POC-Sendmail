@@ -28,7 +28,7 @@ Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "AzureResourceGroup", "Deplo
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Viewer-App", "Src\Viewer-App\Viewer-App.esproj", "{CD89C16D-ED32-4FF7-B73B-DE5B1190E25F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sendmail", "Src\Sendmail\Sendmail\Sendmail.csproj", "{64C4D717-FC80-4F84-B2D1-241A7D129D78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sendmail", "Src\Sendmail\Sendmail\Sendmail.csproj", "{64C4D717-FC80-4F84-B2D1-241A7D129D78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

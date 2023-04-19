@@ -121,6 +121,7 @@
     "var_cs_name": "[concat(variables('namingConvention').prefixes.CommSvc, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_csemail_name": "[concat(variables('namingConvention').prefixes.CommSvcEmail, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_csemaildom_name": "AzureManagedDomain",
+    "var_evgt_name": "[concat(variables('namingConvention').prefixes.EventGridTopic, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
 
     // If a para_SvcPlan is passed then use that, else create a new name following std format
     "svcpln_name": "[concat(variables('namingConvention').prefixes.AppServicePlan, '-', variables('var_application_name_delim'), tolower(variables('var_env_region_delim')))]",
@@ -507,75 +508,75 @@
       "type": "Microsoft.Web/sites/config"
     },
 
-    {
-      "type": "Microsoft.EventHub/namespaces",
-      "apiVersion": "2022-10-01-preview",
-      "name": "[variables('var_evhns_name')]",
-      "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "Basic",
-        "tier": "Basic",
-        "capacity": 1
-      },
-      "properties": {
-        "minimumTlsVersion": "1.2",
-        "publicNetworkAccess": "Enabled",
-        "disableLocalAuth": false,
-        "zoneRedundant": true,
-        "isAutoInflateEnabled": false,
-        "maximumThroughputUnits": 0,
-        "kafkaEnabled": false
-      },
-      "tags": {
-        "displayName": "[concat('EventHub Namespace - ', variables('var_evhns_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/authorizationrules",
-      "apiVersion": "2022-10-01-preview",
-      "name": "[concat(variables('var_evhns_name'), '/RootManageSharedAccessKey')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-      ],
-      "properties": {
-        "rights": [
-          "Listen",
-          "Manage",
-          "Send"
-        ]
-      },
-      "tags": {
-        "displayName": "[concat('EventHub authorization rules - ', variables('var_evhns_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/eventhubs",
-      "apiVersion": "2022-10-01-preview",
-      "name": "[concat(variables('var_evhns_name'), '/', variables('var_evh_name'))]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-      ],
-      "properties": {
-        "retentionDescription": {
-          "cleanupPolicy": "Delete",
-          "retentionTimeInHours": 1
-        },
-        "messageRetentionInDays": 1,
-        "partitionCount": 2,
-        "status": "Active"
-      },
-      "tags": {
-        "displayName": "[concat('EventHub hub - ', variables('var_evh_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    },
+    //{
+    //  "type": "Microsoft.EventHub/namespaces",
+    //  "apiVersion": "2022-10-01-preview",
+    //  "name": "[variables('var_evhns_name')]",
+    //  "location": "[resourceGroup().location]",
+    //  "sku": {
+    //    "name": "Basic",
+    //    "tier": "Basic",
+    //    "capacity": 1
+    //  },
+    //  "properties": {
+    //    "minimumTlsVersion": "1.2",
+    //    "publicNetworkAccess": "Enabled",
+    //    "disableLocalAuth": false,
+    //    "zoneRedundant": true,
+    //    "isAutoInflateEnabled": false,
+    //    "maximumThroughputUnits": 0,
+    //    "kafkaEnabled": false
+    //  },
+    //  "tags": {
+    //    "displayName": "[concat('EventHub Namespace - ', variables('var_evhns_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  }
+    //},
+    //{
+    //  "type": "Microsoft.EventHub/namespaces/authorizationrules",
+    //  "apiVersion": "2022-10-01-preview",
+    //  "name": "[concat(variables('var_evhns_name'), '/RootManageSharedAccessKey')]",
+    //  "location": "[resourceGroup().location]",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+    //  ],
+    //  "properties": {
+    //    "rights": [
+    //      "Listen",
+    //      "Manage",
+    //      "Send"
+    //    ]
+    //  },
+    //  "tags": {
+    //    "displayName": "[concat('EventHub authorization rules - ', variables('var_evhns_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  }
+    //},
+    //{
+    //  "type": "Microsoft.EventHub/namespaces/eventhubs",
+    //  "apiVersion": "2022-10-01-preview",
+    //  "name": "[concat(variables('var_evhns_name'), '/', variables('var_evh_name'))]",
+    //  "location": "[resourceGroup().location]",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+    //  ],
+    //  "properties": {
+    //    "retentionDescription": {
+    //      "cleanupPolicy": "Delete",
+    //      "retentionTimeInHours": 1
+    //    },
+    //    "messageRetentionInDays": 1,
+    //    "partitionCount": 2,
+    //    "status": "Active"
+    //  },
+    //  "tags": {
+    //    "displayName": "[concat('EventHub hub - ', variables('var_evh_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  }
+    //},
 
     //{
     //  "type": "Microsoft.EventHub/namespaces/networkRuleSets",
@@ -771,42 +772,42 @@
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
-    {
-      "apiVersion": "2016-10-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-      ],
-      "name": "[concat(variables('var_kv_name'), '/EventHubCS')]",
-      "properties": {
-        "contentType": "text/plain",
-        "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
-      },
-      "tags": {
-        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ConnectionString",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "type": "Microsoft.KeyVault/vaults/secrets"
-    },
-    {
-      "apiVersion": "2016-10-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-      ],
-      "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
-      "properties": {
-        "contentType": "text/plain",
-        "value": "[variables('var_evhns_name')]"
-      },
-      "tags": {
-        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "type": "Microsoft.KeyVault/vaults/secrets"
-    },
+    //{
+    //  "apiVersion": "2016-10-01",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+    //  ],
+    //  "name": "[concat(variables('var_kv_name'), '/EventHubCS')]",
+    //  "properties": {
+    //    "contentType": "text/plain",
+    //    "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
+    //  },
+    //  "tags": {
+    //    "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ConnectionString",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.KeyVault/vaults/secrets"
+    //},
+    //{
+    //  "apiVersion": "2016-10-01",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+    //  ],
+    //  "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
+    //  "properties": {
+    //    "contentType": "text/plain",
+    //    "value": "[variables('var_evhns_name')]"
+    //  },
+    //  "tags": {
+    //    "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.KeyVault/vaults/secrets"
+    //},
 
     {
       "type": "Microsoft.Communication/emailServices",
@@ -896,6 +897,59 @@
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
+
+    {
+      "type": "Microsoft.EventGrid/systemTopics",
+      "apiVersion": "2022-06-15",
+      "name": "[variables('var_evgt_name')]",
+      "location": "global",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('var_uaid_name')]": {}
+        }
+      },
+      "properties": {
+        "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
+        "topicType": "Microsoft.Communication.CommunicationServices"
+      }
+    },
+    {
+      "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+      "apiVersion": "2022-06-15",
+      "name": "[concat(variables('var_evgt_name'), '/hubevent')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
+      ],
+      "properties": {
+        "deliveryWithResourceIdentity": {
+          "identity": {
+            "type": "UserAssigned",
+            "[variables('var_uaid_name')]": {}
+          },
+          "destination": {
+            //"properties": {
+            //  "resourceId": "[concat(resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name')), '/eventhubs/evh-poc-sendmail-vse-ne')]"
+            //},
+            //"endpointType": "EventHub"
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Communication.EmailEngagementTrackingReportReceived",
+            "Microsoft.Communication.EmailDeliveryReportReceived"
+          ],
+          "enableAdvancedFilteringOnArrays": true
+        },
+        "labels": [],
+        "eventDeliverySchema": "EventGridSchema",
+        "retryPolicy": {
+          "maxDeliveryAttempts": 30,
+          "eventTimeToLiveInMinutes": 1440
+        }
+      }
+    }
+
     //{
     //  "type": "Microsoft.Insights/diagnosticSettings",
     //  "apiVersion": "2021-05-01-preview",
@@ -960,11 +1014,11 @@
     "email": {
       "type": "string",
       "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
-    },
-    "eventhub": {
-      "type": "string",
-      "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
     }
+    //"eventhub": {
+    //  "type": "string",
+    //  "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
+    //}
     //"eventhubSend": {
     //  "type": "string",
     //  "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', variables('var_evhns_name'), variables('var_evh_name'), 'Send'), '2022-10-01-preview').primaryConnectionString]"
