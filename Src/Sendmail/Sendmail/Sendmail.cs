@@ -99,7 +99,7 @@ namespace Sendmail
 
         [Function("EventHubTriggerCSharp")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction evhtrigger([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input,
+        public SignalRMessageAction evhtrigger([EventHubTrigger("evh-poc-sendmail-vse-ne", Connection = "EventHubCS")] string[] input,
              FunctionContext context)
         {
             _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
