@@ -97,19 +97,19 @@ namespace Sendmail
             return response;
         }
 
-        [Function("EventHubTriggerCSharp")]
-        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction evhtrigger([EventHubTrigger("evh-poc-sendmail-vse-ne", Connection = "EventHubCS")] string[] input,
-             FunctionContext context)
-        {
-            _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
+        //[Function("EventHubTriggerCSharp")]
+        //[SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
+        //public SignalRMessageAction evhtrigger([EventHubTrigger("evh-poc-sendmail-vse-ne", Connection = "EventHubCS")] string[] input,
+        //     FunctionContext context)
+        //{
+        //    _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
-            return new SignalRMessageAction("newEvent")
-            {
-                // broadcast to all the connected clients without specifying any connection, user or group.
-                Arguments = new[] { input[0] },
-            };
-        }
+        //    return new SignalRMessageAction("newEvent")
+        //    {
+        //        // broadcast to all the connected clients without specifying any connection, user or group.
+        //        Arguments = new[] { input[0] },
+        //    };
+        //}
 
     }
 }

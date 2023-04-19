@@ -895,7 +895,7 @@
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    },
+    }
     //{
     //  "type": "Microsoft.Insights/diagnosticSettings",
     //  "apiVersion": "2021-05-01-preview",

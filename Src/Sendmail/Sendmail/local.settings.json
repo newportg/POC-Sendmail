@@ -10,7 +10,7 @@
 
     "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
     "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=YlzjklJvfqizxWw6TTCnTVEp+JcMUrLnZbOUiYqavYA=;Version=1.0;",
-    "FromEmailAddress": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=FromEmailAddress)')]"
+    "FromEmailAddress": "donotreply@4bad0720-bf2a-440f-b3c7-4cc4cbc242a8.azurecomm.net"
 
   },
   "Host": {

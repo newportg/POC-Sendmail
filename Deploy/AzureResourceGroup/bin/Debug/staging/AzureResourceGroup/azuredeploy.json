@@ -877,25 +877,25 @@
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    }
-    //{
-    //  "apiVersion": "2016-10-01",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-    //    "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
-    //  ],
-    //  "name": "[concat(variables('var_kv_name'), '/FromEmailAddress')]",
-    //  "properties": {
-    //    "contentType": "text/plain",
-    //    "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.KeyVault/vaults/secrets - FromEmailAddress",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  },
-    //  "type": "Microsoft.KeyVault/vaults/secrets"
-    //},
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/FromEmailAddress')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - FromEmailAddress",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
     //{
     //  "type": "Microsoft.Insights/diagnosticSettings",
     //  "apiVersion": "2021-05-01-preview",
