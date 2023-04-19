@@ -949,55 +949,55 @@
     //    }
     //  }
     //}
-    {
-      "type": "Microsoft.Web/sites/functions",
-      "apiVersion": "2022-09-01",
-      "name": "[concat(variables('var_azf_name'), '/ecgtemail')]",
-      "location": "North Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
-      ],
-      "properties": {
-        //"script_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/site/wwwroot/Sendmail.dll",
-        //"test_data_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/data/Functions/sampledata/ecgtemail.dat",
-        //"href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/functions/ecgtemail",
-        "config": {},
-        "language": "dotnet-isolated",
-        "isDisabled": false
-      }
-    },
+    //{
+    //  "type": "Microsoft.Web/sites/functions",
+    //  "apiVersion": "2022-09-01",
+    //  "name": "[concat(variables('var_azf_name'), '/ecgtemail')]",
+    //  "location": "North Europe",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+    //  ],
+    //  "properties": {
+    //    //"script_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/site/wwwroot/Sendmail.dll",
+    //    //"test_data_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/data/Functions/sampledata/ecgtemail.dat",
+    //    //"href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/functions/ecgtemail",
+    //    "config": {},
+    //    "language": "dotnet-isolated",
+    //    "isDisabled": false
+    //  }
+    //},
 
-    {
-      "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-      "apiVersion": "2022-06-15",
-      "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
-      ],
-      "properties": {
-        "destination": {
-          "properties": {
-            "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/ecgtemail')]",
-            "maxEventsPerBatch": 1,
-            "preferredBatchSizeInKilobytes": 64
-          },
-          "endpointType": "AzureFunction"
-        },
-        "filter": {
-          "includedEventTypes": [
-            "Microsoft.Communication.EmailEngagementTrackingReportReceived",
-            "Microsoft.Communication.EmailDeliveryReportReceived"
-          ],
-          "enableAdvancedFilteringOnArrays": true
-        },
-        "labels": [],
-        "eventDeliverySchema": "EventGridSchema",
-        "retryPolicy": {
-          "maxDeliveryAttempts": 30,
-          "eventTimeToLiveInMinutes": 1440
-        }
-      }
-    }
+    //{
+    //  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+    //  "apiVersion": "2022-06-15",
+    //  "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
+    //  ],
+    //  "properties": {
+    //    "destination": {
+    //      "properties": {
+    //        "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/ecgtemail')]",
+    //        "maxEventsPerBatch": 1,
+    //        "preferredBatchSizeInKilobytes": 64
+    //      },
+    //      "endpointType": "AzureFunction"
+    //    },
+    //    "filter": {
+    //      "includedEventTypes": [
+    //        "Microsoft.Communication.EmailEngagementTrackingReportReceived",
+    //        "Microsoft.Communication.EmailDeliveryReportReceived"
+    //      ],
+    //      "enableAdvancedFilteringOnArrays": true
+    //    },
+    //    "labels": [],
+    //    "eventDeliverySchema": "EventGridSchema",
+    //    "retryPolicy": {
+    //      "maxDeliveryAttempts": 30,
+    //      "eventTimeToLiveInMinutes": 1440
+    //    }
+    //  }
+    //}
     //{
     //  "type": "Microsoft.Insights/diagnosticSettings",
     //  "apiVersion": "2021-05-01-preview",
