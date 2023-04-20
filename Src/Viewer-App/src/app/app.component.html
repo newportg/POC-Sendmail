@@ -1,9 +1,16 @@
 <div class="content" role="main">
   <h2>Events received {{ events.length }}</h2>
 
+  <button (click)="open()">Send Mail</button>
+
+  <table>
+    <tr class="card"*ngFor="let event of events"><span>{{ event }}</span></tr>
+  </table>
+
   <div class="card" *ngFor="let event of events">
     <span>{{ event }}</span>
   </div>
 
   <span>{{ baseurl }}</span>
+
 </div>

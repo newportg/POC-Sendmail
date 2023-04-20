@@ -47,8 +47,26 @@ namespace Sendmail
 
         }
 
+        [Function("MailEventSubscription")]
+        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
+        public SignalRMessageAction MailEventSubscription([EventGridTrigger] EventGridEvent input)
+        {
+            _logger.LogInformation(input.Data.ToString());
+            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
+            _logger.LogInformation(data);
+
+            return new SignalRMessageAction("newEvent")
+            {
+                // broadcast to all the connected clients without specifying any connection, user or group.
+                Arguments = new[] { data },
+            };
+        }
+
         [Function("SendMail")]
         [OpenApiOperation(operationId: "SendMail")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
+
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -91,27 +109,6 @@ namespace Sendmail
 
             return response;
         }
-
-        //[Function("ecgtemail")]
-        //public void Run([EventGridTrigger] EventGridEvent input)
-        //{
-        //    _logger.LogInformation(input.Data.ToString());
-        //}
-
-        //[Function("EventHubTriggerCSharp")]
-        //[SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        //public SignalRMessageAction evhtrigger([EventHubTrigger("evh-poc-sendmail-vse-ne", Connection = "EventHubCS")] string[] input,
-        //     FunctionContext context)
-        //{
-        //    _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
-
-        //    return new SignalRMessageAction("newEvent")
-        //    {
-        //        // broadcast to all the connected clients without specifying any connection, user or group.
-        //        Arguments = new[] { input[0] },
-        //    };
-        //}
-
     }
 }
 

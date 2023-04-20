@@ -4,13 +4,13 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
 
-    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=8xAdTWVCcJSOS0MKViUcJJm5xb6BARhkwUohKyByAwQx8ws29mx/q1mJvtI6fF5tpoL9sceiKaqvQ3iNno0arw==",
-    "EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=BZwkzo/pxZypu32zaDEpakWKo2MoxHN0J+AEhKaV+Cg=",
-    "EventHubName": "evhns-poc-sendmail-vse-ne",
+    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=K4gJ6W0Zc8YMpaUINEVVw7poLnwlw7DNf5WAsnC2X4gomfZDFnFxkaO/pHTz/w2ncH9vqGZ8vxN22xE1VPiA7w==",
+    //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=BZwkzo/pxZypu32zaDEpakWKo2MoxHN0J+AEhKaV+Cg=",
+    //"EventHubName": "evhns-poc-sendmail-vse-ne",
+    "FromEmailAddress": "donotreply@db3918d7-6a85-43d9-b587-a2af384261ae.azurecomm.net",
+    "HubSqlConnection": "Server=HubCharlieSQL01.SA1.KF-INT.COM;Database=Hub.IntegrationTests.cdd-drl-dwn;Integrated Security=false;User ID=sa;Password=$Kf@admin;TrustServerCertificate=true;",
+    "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=et17V0AaRTkh/FnDI8e4pU341F2bbXZfRmSNhLK7WHI=;Version=1.0;"
 
-    "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
-    "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=YlzjklJvfqizxWw6TTCnTVEp+JcMUrLnZbOUiYqavYA=;Version=1.0;",
-    "FromEmailAddress": "donotreply@4bad0720-bf2a-440f-b3c7-4cc4cbc242a8.azurecomm.net"
 
   },
   "Host": {

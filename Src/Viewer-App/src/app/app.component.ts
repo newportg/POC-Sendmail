@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import * as SignalR from '@microsoft/signalr';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -11,10 +12,20 @@ export class AppComponent {
   title = 'viewer-app';
   events: string[] = [];
   baseurl: string;
+/*  countryData: any;*/
 
   private hubConnection: SignalR.HubConnection;
 
-  constructor() {
+  public open() {
+    //alert("button was clicked");
+    return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
+  }
+
+  public getCountries() {
+    return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
+  }
+
+  constructor(private http: HttpClient) {
     // Create connection
     this.hubConnection = new SignalR.HubConnectionBuilder()
       .withUrl("https://func-poc-sendmail-vse-ne.azurewebsites.net/api/")
@@ -38,3 +49,11 @@ export class AppComponent {
 
   }
 }
+
+class event {
+  id: string = "";
+  sent: boolean = false;
+  viewed: boolean = false;
+}
+
+
