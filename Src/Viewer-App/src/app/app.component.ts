@@ -20,10 +20,10 @@ export class AppComponent {
   public open() {
     //alert("button was clicked");
 
-    this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail', { observe: 'response' })
+    this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail', { observe: 'response', responseType: 'text' })
       .subscribe(
         (response) => {
-          this.emailid = response;
+          this.emailid = response.body?.toString();
         },
       (error) => { console.log(error); });
 
@@ -50,23 +50,21 @@ export class AppComponent {
     // Handle incoming events for the specific target
     this.hubConnection.on("newEvent", (event) => {
       this.events.push(event);
+      var jsonObject: any = JSON.parse(event);
 
-      this.eventss.push(new Item(event.messageId, event.status == "Delivered"?true:false, event.engagementType == "view" ? true:false));
+      this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
     });
-
-    this.eventss.push( new Item( "1234456", true, false) );
-
   }
 }
 
 export class Item {
   public id: string;
-  public sent: boolean;
+  public delivered: boolean;
   public viewed: boolean;
 
-  constructor(id: string, sent: boolean, viewed: boolean) {
+  constructor(id: string, delivered: boolean, viewed: boolean) {
     this.id = id;
-    this.sent = sent;
+    this.delivered = delivered;
     this.viewed = viewed;
   }
 }
