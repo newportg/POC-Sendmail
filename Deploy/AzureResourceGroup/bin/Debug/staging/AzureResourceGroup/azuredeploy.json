@@ -896,24 +896,24 @@
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    },
+    }
 
-    {
-      "type": "Microsoft.EventGrid/systemTopics",
-      "apiVersion": "2022-06-15",
-      "name": "[variables('var_evgt_name')]",
-      "location": "global",
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[variables('var_uaid_name')]": {}
-        }
-      },
-      "properties": {
-        "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
-        "topicType": "Microsoft.Communication.CommunicationServices"
-      }
-    },
+    //{
+    //  "type": "Microsoft.EventGrid/systemTopics",
+    //  "apiVersion": "2022-06-15",
+    //  "name": "[variables('var_evgt_name')]",
+    //  "location": "global",
+    //  "identity": {
+    //    "type": "UserAssigned",
+    //    "userAssignedIdentities": {
+    //      "[variables('var_uaid_name')]": {}
+    //    }
+    //  },
+    //  "properties": {
+    //    "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
+    //    "topicType": "Microsoft.Communication.CommunicationServices"
+    //  }
+    //}
     //{
     //  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
     //  "apiVersion": "2022-06-15",

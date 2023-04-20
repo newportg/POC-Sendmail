@@ -21,8 +21,6 @@ namespace Sendmail
 
         [Function("negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
-        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRConnectionInfo), Description = "The OK response")]
-        //[OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
         public SignalRConnectionInfo Negotiate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")] SignalRConnectionInfo connectionInfo)
@@ -34,8 +32,6 @@ namespace Sendmail
         [Function("BroadcastToAll")]
         [OpenApiOperation(operationId: "BroadcastToAll")]
         [OpenApiRequestBody(contentType: "text/plain", bodyType: typeof(string), Description = "message", Example = typeof(string))]
-        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(SignalRMessageAction), Description = "The OK response")]
-        //[OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
         public SignalRMessageAction BroadcastToAll([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
@@ -53,8 +49,6 @@ namespace Sendmail
 
         [Function("SendMail")]
         [OpenApiOperation(operationId: "SendMail")]
-        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(HttpResponseData), Description = "The OK response")]
-        //[OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration / Database issue")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -98,11 +92,11 @@ namespace Sendmail
             return response;
         }
 
-        [Function("ecgtemail")]
-        public void Run([EventGridTrigger] EventGridEvent input)
-        {
-            _logger.LogInformation(input.Data.ToString());
-        }
+        //[Function("ecgtemail")]
+        //public void Run([EventGridTrigger] EventGridEvent input)
+        //{
+        //    _logger.LogInformation(input.Data.ToString());
+        //}
 
         //[Function("EventHubTriggerCSharp")]
         //[SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
