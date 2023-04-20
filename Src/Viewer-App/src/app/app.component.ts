@@ -13,24 +13,21 @@ export class AppComponent {
   events: string[] = [];
   eventss: Item[] = [];
   baseurl: string;
-/*  countryData: any;*/
+  emailid: any;
 
   private hubConnection: SignalR.HubConnection;
 
   public open() {
     //alert("button was clicked");
-    this.http.get(
-      'https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail',
-      { observe: 'response' }
-    )
-      .subscribe(response => {
-        // You can access status:
-        console.log(response.status);
 
-        this.eventss.push(new Item("1234456", false, false));
-      });
+    this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail', { observe: 'response' })
+      .subscribe(
+        (response) => {
+          this.emailid = response;
+        },
+      (error) => { console.log(error); });
 
-    return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
+   // return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
   }
 
   constructor(private http: HttpClient) {
