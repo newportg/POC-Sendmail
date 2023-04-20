@@ -19,6 +19,17 @@ export class AppComponent {
 
   public open() {
     //alert("button was clicked");
+    this.http.get(
+      'https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail',
+      { observe: 'response' }
+    )
+      .subscribe(response => {
+        // You can access status:
+        console.log(response.status);
+
+        this.eventss.push(new Item("1234456", false, false));
+      });
+
     return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
   }
 

@@ -98,7 +98,7 @@ namespace Sendmail
                 /// Get the OperationId so that it can be used for tracking the message for troubleshooting
                 string operationId = emailSendOperation.Id;
                 Console.WriteLine($"Email operation id = {operationId}");
-                response.WriteString($"Email operation id = {operationId}");
+                response.WriteString($"{operationId}");
             }
             catch (RequestFailedException ex)
             {
