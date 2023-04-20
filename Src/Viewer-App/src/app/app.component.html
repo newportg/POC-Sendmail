@@ -3,8 +3,17 @@
 
   <button (click)="open()">Send Mail</button>
 
-  <table>
-    <tr class="card"*ngFor="let event of events"><span>{{ event }}</span></tr>
+  <table border="1">
+    <tr>
+      <th>Id</th>
+      <th>Sent</th>
+      <th>Viewed</th>
+    </tr>
+    <tr class="card" *ngFor="let event of eventss">
+      <td>{{ event.id }}</td>
+      <td><input type="checkbox" [checked]=event.sent></td>
+      <td><input type="checkbox" [checked]=event.viewed></td>
+    </tr>
   </table>
 
   <div class="card" *ngFor="let event of events">

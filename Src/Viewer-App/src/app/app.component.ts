@@ -11,6 +11,7 @@ export class AppComponent {
 
   title = 'viewer-app';
   events: string[] = [];
+  eventss: Item[] = [];
   baseurl: string;
 /*  countryData: any;*/
 
@@ -18,10 +19,6 @@ export class AppComponent {
 
   public open() {
     //alert("button was clicked");
-    return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
-  }
-
-  public getCountries() {
     return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
   }
 
@@ -45,15 +42,23 @@ export class AppComponent {
     // Handle incoming events for the specific target
     this.hubConnection.on("newEvent", (event) => {
       this.events.push(event);
+
+      this.eventss.push(new Item(event.messageId, event.status == "Delivered"?true:false, event.engagementType == "view" ? true:false));
     });
+
+    this.eventss.push( new Item( "1234456", true, false) );
 
   }
 }
 
-class event {
-  id: string = "";
-  sent: boolean = false;
-  viewed: boolean = false;
+export class Item {
+  public id: string;
+  public sent: boolean;
+  public viewed: boolean;
+
+  constructor(id: string, sent: boolean, viewed: boolean) {
+    this.id = id;
+    this.sent = sent;
+    this.viewed = viewed;
+  }
 }
-
-
