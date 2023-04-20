@@ -24,10 +24,9 @@ export class AppComponent {
       .subscribe(
         (response) => {
           this.emailid = response.body?.toString();
+          this.eventss.push(new Item(this.emailid, false, false));
         },
       (error) => { console.log(error); });
-
-   // return this.http.get('https://func-poc-sendmail-vse-ne.azurewebsites.net/api/SendMail')
   }
 
   constructor(private http: HttpClient) {
@@ -52,8 +51,20 @@ export class AppComponent {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-      this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
+      for (let i = 0; i < this.eventss.length; i++) {
+        if (this.eventss[i].id == jsonObject.messageId) {
+          if (jsonObject.status == "Delivered")
+            this.eventss[i].delivered = true;
+          if (jsonObject.engagementType == "view")
+            this.eventss[i].viewed = true;
+        }
+      }
+
+      var result = this.eventss.find(o => o.id === jsonObject.messageId);
+      if( result == null)
+        this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
     });
+
   }
 }
 
