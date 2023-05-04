@@ -896,63 +896,30 @@
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    }
+    },
 
-    //{
-    //  "type": "Microsoft.EventGrid/systemTopics",
-    //  "apiVersion": "2022-06-15",
-    //  "name": "[variables('var_evgt_name')]",
-    //  "location": "global",
-    //  "identity": {
-    //    "type": "UserAssigned",
-    //    "userAssignedIdentities": {
-    //      "[variables('var_uaid_name')]": {}
-    //    }
-    //  },
-    //  "properties": {
-    //    "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
-    //    "topicType": "Microsoft.Communication.CommunicationServices"
-    //  }
-    //}
-    //{
-    //  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-    //  "apiVersion": "2022-06-15",
-    //  "name": "[concat(variables('var_evgt_name'), '/hubevent')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
-    //  ],
-    //  "properties": {
-    //    "deliveryWithResourceIdentity": {
-    //      "identity": {
-    //        "type": "UserAssigned",
-    //        "[variables('var_uaid_name')]": {}
-    //      },
-    //      "destination": {
-    //        //"properties": {
-    //        //  "resourceId": "[concat(resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name')), '/eventhubs/evh-poc-sendmail-vse-ne')]"
-    //        //},
-    //        //"endpointType": "EventHub"
-    //      }
-    //    },
-    //    "filter": {
-    //      "includedEventTypes": [
-    //        "Microsoft.Communication.EmailEngagementTrackingReportReceived",
-    //        "Microsoft.Communication.EmailDeliveryReportReceived"
-    //      ],
-    //      "enableAdvancedFilteringOnArrays": true
-    //    },
-    //    "labels": [],
-    //    "eventDeliverySchema": "EventGridSchema",
-    //    "retryPolicy": {
-    //      "maxDeliveryAttempts": 30,
-    //      "eventTimeToLiveInMinutes": 1440
-    //    }
-    //  }
-    //}
+    {
+      "type": "Microsoft.EventGrid/systemTopics",
+      "apiVersion": "2022-06-15",
+      "name": "[variables('var_evgt_name')]",
+      "location": "global",
+      //"identity": {
+      //  "type": "UserAssigned",
+      //  "userAssignedIdentities": {
+      //    "[variables('var_uaid_name')]": {}
+      //  }
+      //},
+      "properties": {
+        "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
+        "topicType": "Microsoft.Communication.CommunicationServices"
+      }
+    },
+
+
     //{
     //  "type": "Microsoft.Web/sites/functions",
     //  "apiVersion": "2022-09-01",
-    //  "name": "[concat(variables('var_azf_name'), '/ecgtemail')]",
+    //  "name": "[concat(variables('var_azf_name'), '/MailEventSubscription')]",
     //  "location": "North Europe",
     //  "dependsOn": [
     //    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
@@ -967,37 +934,38 @@
     //  }
     //},
 
-    //{
-    //  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-    //  "apiVersion": "2022-06-15",
-    //  "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
-    //  ],
-    //  "properties": {
-    //    "destination": {
-    //      "properties": {
-    //        "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/ecgtemail')]",
-    //        "maxEventsPerBatch": 1,
-    //        "preferredBatchSizeInKilobytes": 64
-    //      },
-    //      "endpointType": "AzureFunction"
-    //    },
-    //    "filter": {
-    //      "includedEventTypes": [
-    //        "Microsoft.Communication.EmailEngagementTrackingReportReceived",
-    //        "Microsoft.Communication.EmailDeliveryReportReceived"
-    //      ],
-    //      "enableAdvancedFilteringOnArrays": true
-    //    },
-    //    "labels": [],
-    //    "eventDeliverySchema": "EventGridSchema",
-    //    "retryPolicy": {
-    //      "maxDeliveryAttempts": 30,
-    //      "eventTimeToLiveInMinutes": 1440
-    //    }
-    //  }
-    //}
+    {
+      "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+      "apiVersion": "2022-06-15",
+      "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]"
+        //"[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]"
+      ],
+      "properties": {
+        "destination": {
+          "properties": {
+            "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]",
+            "maxEventsPerBatch": 1,
+            "preferredBatchSizeInKilobytes": 64
+          },
+          "endpointType": "AzureFunction"
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Communication.EmailEngagementTrackingReportReceived",
+            "Microsoft.Communication.EmailDeliveryReportReceived"
+          ],
+          "enableAdvancedFilteringOnArrays": true
+        },
+        "labels": [],
+        "eventDeliverySchema": "EventGridSchema",
+        "retryPolicy": {
+          "maxDeliveryAttempts": 30,
+          "eventTimeToLiveInMinutes": 1440
+        }
+      }
+    }
     //{
     //  "type": "Microsoft.Insights/diagnosticSettings",
     //  "apiVersion": "2021-05-01-preview",

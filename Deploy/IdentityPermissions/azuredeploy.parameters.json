@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "para_target_env": { "value": "vse" },
+    "para_appFamily_name": { "value": "poc" },
+    "para_application_name": { "value": "sendmail" }
+
+  }
+}
