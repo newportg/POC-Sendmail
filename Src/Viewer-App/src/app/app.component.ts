@@ -51,29 +51,45 @@ export class AppComponent {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-    for (let y = 0; y < jsonObject.records.length; y++) {
-      for (let i = 0; i < this.eventss.length; i++) {
-        if (this.eventss[i].id == jsonObject.records[y].correlationId) {
-          if (jsonObject.records[y].operationName == "SendMail") {
-            this.eventss[i].sent = true;
-          }
-          if (jsonObject.records[y].operationName == "GetMessageStatus") {
-            this.eventss[i].status = jsonObject.records[y].properties.MessageStatus;
-            if (jsonObject.records[y].properties.MessageStatus == "Succeeded") {
-              this.eventss[i].delivered = true;
-            }
-          }
-          if (jsonObject.records[y].operationName == "UserEngagementUpdate") {
-            if (jsonObject.records[y].properties.engagementType == "View")
-              this.eventss[i].viewed = true;
-          }
+    //for (let y = 0; y < jsonObject.records.length; y++) {
+    //  for (let i = 0; i < this.eventss.length; i++) {
+    //    if (this.eventss[i].id == jsonObject.records[y].correlationId) {
+    //      if (jsonObject.records[y].operationName == "SendMail") {
+    //        this.eventss[i].sent = true;
+    //      }
+    //      if (jsonObject.records[y].operationName == "GetMessageStatus") {
+    //        this.eventss[i].status = jsonObject.records[y].properties.MessageStatus;
+    //        if (jsonObject.records[y].properties.MessageStatus == "Succeeded") {
+    //          this.eventss[i].delivered = true;
+    //        }
+    //      }
+    //      if (jsonObject.records[y].operationName == "UserEngagementUpdate") {
+    //        if (jsonObject.records[y].properties.engagementType == "View")
+    //          this.eventss[i].viewed = true;
+    //      }
+    //      if (jsonObject.records[y].operationName == "DeliveryStatusUpdate") {
+    //        this.eventss[i].status = jsonObject.records[y].properties.DeliveryStatus;
+    //      }
+    //    }
+    //  }
+    //}
+
+      var result = this.eventss.find(o => o.id === jsonObject.records[0].correlationId);
+      if (result == null) {
+        this.eventss.push(new Item(jsonObject.records[0].correlationId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
+      }
+
+      for (let y = 0; y < jsonObject.records.length; y++) {
+        var result = this.eventss.find(o => o.id === jsonObject.records[y].correlationId);
+        if (result == null) {
+          var it = this.eventss.push(new Item(jsonObject.records[0].correlationId, false, false, false, ""));
+          this.eventss[it].Update(jsonObject[y]);
+        }
+        if (result != null) {
+          result.Update(jsonObject[y]);
         }
       }
-    }
 
-        var result = this.eventss.find(o => o.id === jsonObject.records[0].correlationId);
-        if (result == null)
-          this.eventss.push(new Item(jsonObject.records[0].correlationId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
     });
 
     //}
@@ -126,6 +142,26 @@ export class Item {
     this.viewed = viewed;
     this.status = status;
   }
+
+  public Update(source: any) {
+    if (source.operationName == "SendMail") {
+      this.sent = true;
+    }
+    if (source.operationName == "GetMessageStatus") {
+      this.status = source.properties.MessageStatus;
+    }
+    if (source.operationName == "DeliveryStatusUpdate") {
+      this.status = source.properties.DeliveryStatus;
+      if (source.properties.DeliveryStatus == "Delivered") {
+        this.delivered = true;
+      }
+    }
+    if (source.operationName == "UserEngagementUpdate") {
+      if (source.properties.engagementType == "View")
+        this.viewed = true;
+    }
+  }
+
 }
 
 
