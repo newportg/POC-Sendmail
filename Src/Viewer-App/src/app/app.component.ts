@@ -52,7 +52,6 @@ export class AppComponent {
       var jsonObject: any = JSON.parse(event);
 
       for (let y = 0; y < jsonObject.records.length; y++) {
-
         for (let i = 0; i < this.eventss.length; i++) {
           if (this.eventss[i].id == jsonObject.records[y].correlationId) {
             if (jsonObject.records[y].operationName == "SendMail") {
@@ -70,11 +69,12 @@ export class AppComponent {
             }
           }
         }
+      }
 
 
-        var result = this.eventss.find(o => o.id === jsonObject.messageId);
+        var result = this.eventss.find(o => o.id === jsonObject.records[0].correlationId);
         if (result == null)
-          this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
+          this.eventss.push(new Item(jsonObject.records[0].correlationId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
       });
 
     }
