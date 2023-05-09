@@ -783,7 +783,7 @@
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    }
+    },
 
     // Azure Function
     {

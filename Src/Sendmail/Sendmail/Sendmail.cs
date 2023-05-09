@@ -1,5 +1,6 @@
 using Azure;
 using Azure.Communication.Email;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -7,6 +8,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
+using System.Text;
 
 namespace Sendmail
 {
@@ -47,12 +49,30 @@ namespace Sendmail
 
         }
 
+        //[Function("MailEventSubscription")]
+        //[SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
+        //public SignalRMessageAction MailEventSubscription([EventGridTrigger] EventGridEvent input)
+        //{
+        //    _logger.LogInformation(input.Data.ToString());
+        //    var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
+        //    _logger.LogInformation(data);
+
+        //    return new SignalRMessageAction("newEvent")
+        //    {
+        //        // broadcast to all the connected clients without specifying any connection, user or group.
+        //        Arguments = new[] { data },
+        //    };
+        //}
+
         [Function("MailEventSubscription")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction MailEventSubscription([EventGridTrigger] EventGridEvent input)
+        public SignalRMessageAction MailEventSubscription([EventHubTrigger(eventHubName:"%EventHubName%", Connection = "EventHubCS")] string[] input)
         {
-            _logger.LogInformation(input.Data.ToString());
-            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
+            _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
+
+            var message = $"Output message created at {DateTime.Now}";
+
+            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input[0]);
             _logger.LogInformation(data);
 
             return new SignalRMessageAction("newEvent")
