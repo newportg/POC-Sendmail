@@ -51,35 +51,34 @@ export class AppComponent {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-      for (let y = 0; y < jsonObject.records.length; y++) {
-        for (let i = 0; i < this.eventss.length; i++) {
-          if (this.eventss[i].id == jsonObject.records[y].correlationId) {
-            if (jsonObject.records[y].operationName == "SendMail") {
-              this.eventss[i].sent = true;
+    for (let y = 0; y < jsonObject.records.length; y++) {
+      for (let i = 0; i < this.eventss.length; i++) {
+        if (this.eventss[i].id == jsonObject.records[y].correlationId) {
+          if (jsonObject.records[y].operationName == "SendMail") {
+            this.eventss[i].sent = true;
+          }
+          if (jsonObject.records[y].operationName == "GetMessageStatus") {
+            this.eventss[i].status = jsonObject.records[y].properties.MessageStatus;
+            if (jsonObject.records[y].properties.MessageStatus == "Succeeded") {
+              this.eventss[i].delivered = true;
             }
-            if (jsonObject.records[y].operationName == "GetMessageStatus") {
-              this.eventss[i].status = jsonObject.records[y].properties.MessageStatus;
-              if (jsonObject.records[y].properties.MessageStatus == "Succeeded") {
-                this.eventss[i].delivered = true;
-              }
-            }
-            if (jsonObject.records[y].operationName == "UserEngagementUpdate") {
-              if (jsonObject.records[y].properties.engagementType == "View")
-                this.eventss[i].viewed = true;
-            }
+          }
+          if (jsonObject.records[y].operationName == "UserEngagementUpdate") {
+            if (jsonObject.records[y].properties.engagementType == "View")
+              this.eventss[i].viewed = true;
           }
         }
       }
-
+    }
 
         var result = this.eventss.find(o => o.id === jsonObject.records[0].correlationId);
         if (result == null)
           this.eventss.push(new Item(jsonObject.records[0].correlationId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
-      });
+    });
 
-    }
+    //}
 
-    // Handle incoming events for the specific target
+    //// Handle incoming events for the specific target
     //this.hubConnection.on("newEvent", (event) => {
     //  this.events.push(event);
     //  var jsonObject: any = JSON.parse(event);
