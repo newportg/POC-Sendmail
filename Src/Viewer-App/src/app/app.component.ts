@@ -24,7 +24,7 @@ export class AppComponent {
       .subscribe(
         (response) => {
           this.emailid = response.body?.toString();
-          this.eventss.push(new Item(this.emailid, false, false));
+          this.eventss.push(new Item(this.emailid, false, false, false, ""));
         },
       (error) => { console.log(error); });
   }
@@ -46,36 +46,87 @@ export class AppComponent {
 
     this.baseurl = this.hubConnection.baseUrl;
 
-    // Handle incoming events for the specific target
+    //Handle incoming events for the specific target
     this.hubConnection.on("newEvent", (event) => {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-      for (let i = 0; i < this.eventss.length; i++) {
-        if (this.eventss[i].id == jsonObject.messageId) {
-          if (jsonObject.status == "Delivered")
-            this.eventss[i].delivered = true;
-          if (jsonObject.engagementType == "view")
-            this.eventss[i].viewed = true;
-        }
-      }
+      for (let y = 0; y < jsonObject.records.length; y++) {
 
-      var result = this.eventss.find(o => o.id === jsonObject.messageId);
-      if( result == null)
-        this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
-    });
+        for (let i = 0; i < this.eventss.length; i++) {
+          if (this.eventss[i].id == jsonObject.records[y].correlationId) {
+            if (jsonObject.records[y].operationName == "SendMail") {
+              this.eventss[i].sent = true;
+            }
+            if (jsonObject.records[y].operationName == "GetMessageStatus") {
+              this.eventss[i].status = jsonObject.records[y].properties.MessageStatus;
+              if (jsonObject.records[y].properties.MessageStatus == "Succeeded") {
+                this.eventss[i].delivered = true;
+              }
+            }
+            if (jsonObject.records[y].operationName == "UserEngagementUpdate") {
+              if (jsonObject.records[y].properties.engagementType == "View")
+                this.eventss[i].viewed = true;
+            }
+          }
+        }
+
+
+        var result = this.eventss.find(o => o.id === jsonObject.messageId);
+        if (result == null)
+          this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Sent" ? true : false, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true : false, ""));
+      });
+
+    }
+
+    // Handle incoming events for the specific target
+    //this.hubConnection.on("newEvent", (event) => {
+    //  this.events.push(event);
+    //  var jsonObject: any = JSON.parse(event);
+
+    //  for (let i = 0; i < this.eventss.length; i++) {
+    //    if (this.eventss[i].id == jsonObject.messageId) {
+    //      if (jsonObject.status == "Delivered")
+    //        this.eventss[i].delivered = true;
+    //      if (jsonObject.engagementType == "view")
+    //        this.eventss[i].viewed = true;
+    //    }
+    //  }
+
+    //  var result = this.eventss.find(o => o.id === jsonObject.messageId);
+    //  if( result == null)
+    //    this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
+    //});
 
   }
 }
+
+//export class Item {
+//  public id: string;
+//  public delivered: boolean;
+//  public viewed: boolean;
+
+//  constructor(id: string, delivered: boolean, viewed: boolean) {
+//    this.id = id;
+//    this.delivered = delivered;
+//    this.viewed = viewed;
+//  }
+//}
 
 export class Item {
   public id: string;
+  public sent: boolean;
   public delivered: boolean;
   public viewed: boolean;
+  public status: string;
 
-  constructor(id: string, delivered: boolean, viewed: boolean) {
+  constructor(id: string, sent: boolean, delivered: boolean, viewed: boolean, status: string) {
     this.id = id;
+    this.sent = sent;
     this.delivered = delivered;
     this.viewed = viewed;
+    this.status = status;
   }
 }
+
+

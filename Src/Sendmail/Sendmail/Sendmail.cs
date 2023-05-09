@@ -70,15 +70,10 @@ namespace Sendmail
         {
             _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
-            var message = $"Output message created at {DateTime.Now}";
-
-            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input[0]);
-            _logger.LogInformation(data);
-
             return new SignalRMessageAction("newEvent")
             {
                 // broadcast to all the connected clients without specifying any connection, user or group.
-                Arguments = new[] { data },
+                Arguments = new[] { input[0] },
             };
         }
 

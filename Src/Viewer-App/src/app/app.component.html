@@ -6,13 +6,17 @@
   <table border="1">
     <tr>
       <th>Id</th>
+      <th>Sent</th>
       <th>Delivered</th>
       <th>Viewed</th>
+      <th>Status</th>
     </tr>
     <tr class="card" *ngFor="let event of eventss">
       <td>{{ event.id }}</td>
+      <td><input type="checkbox" [checked]=event.sent></td>
       <td><input type="checkbox" [checked]=event.delivered></td>
       <td><input type="checkbox" [checked]=event.viewed></td>
+      <td><input type="text" [checked]=event.status></td>
     </tr>
   </table>
 

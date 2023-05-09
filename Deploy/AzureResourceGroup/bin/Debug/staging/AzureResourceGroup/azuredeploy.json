@@ -284,7 +284,8 @@
       "name": "[variables('var_evhds_name')]",
       "scope": "[concat('Microsoft.Communication/CommunicationServices/',variables('var_cs_name'))]",
       "dependsOn": [
-        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
       ],
       "properties": {
         "logs": [
@@ -775,7 +776,7 @@
       "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
       "properties": {
         "contentType": "text/plain",
-        "value": "[variables('var_evhns_name')]"
+        "value": "[variables('var_evh_name')]"
       },
       "tags": {
         "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
