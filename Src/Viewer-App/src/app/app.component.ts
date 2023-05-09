@@ -144,21 +144,34 @@ export class Item {
   }
 
   public Update(source: any) {
-    if (source.operationName == "SendMail") {
-      this.sent = true;
-    }
-    if (source.operationName == "GetMessageStatus") {
-      this.status = source.properties.MessageStatus;
-    }
-    if (source.operationName == "DeliveryStatusUpdate") {
-      this.status = source.properties.DeliveryStatus;
-      if (source.properties.DeliveryStatus == "Delivered") {
-        this.delivered = true;
+    if (source.properties.OperationCategory == "EmailSendMailOperational") {
+      if (source.properties.OperationType == "SendMail") {
+        this.status = "Queued";
       }
     }
-    if (source.operationName == "UserEngagementUpdate") {
-      if (source.properties.engagementType == "View")
-        this.viewed = true;
+    else if (source.properties.OperationCategory == "EmailStatusUpdateOperational") {
+      if (source.properties.OperationType == "GetMessageStatus") {
+        this.status = source.properties.MessageStatus;
+        if (source.properties.MessageStatus == "Succeeded") {
+          this.sent = true;
+        }
+      }
+      if (source.properties.OperationType == "DeliveryStatusUpdate") {
+        this.status = source.properties.DeliveryStatus;
+        if (source.properties.DeliveryStatus == "Delivered") {
+          this.delivered = true;
+        }
+      }
+    }
+    else if (source.properties.OperationCategory == "EmailUserEngagementOperational") {
+      if (source.properties.OperationType == "UserEngagementUpdate") {
+        if (source.properties.EngagementType == "View") {
+          this.viewed = true;
+        }
+      }
+    }
+    else {
+      this.status = "Unknown :" + source.operationName;
     }
   }
 
