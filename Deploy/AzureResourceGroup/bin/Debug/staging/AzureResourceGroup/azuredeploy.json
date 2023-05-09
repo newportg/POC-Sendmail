@@ -91,6 +91,7 @@
         "SignalR": "sigr",
         "StaticWebApp": "stapp",
         "EventHubNS": "evhns",
+        "EventHubDS": "ds",
         "EventHub": "evh",
         "CommSvc": "acs",
         "CommSvcEmail": "acse",
@@ -118,6 +119,8 @@
     "var_evhns_name": "[concat(variables('namingConvention').prefixes.EventHubNS, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_evh_name": "[concat(variables('namingConvention').prefixes.EventHub, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_evhns_id": "[concat('/subscriptions/',variables('var_sub_id'),'/resourcegroups/', resourceGroup().Name, '/providers/Microsoft.EventHub/namespaces/',tolower(variables('var_evhns_name')),'/authorizationrules/RootManageSharedAccessKey')]",
+    "var_evhds_name": "[concat(variables('namingConvention').prefixes.EventHubDS, '-', variables('var_evhns_name'))]",
+
     "var_cs_name": "[concat(variables('namingConvention').prefixes.CommSvc, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_csemail_name": "[concat(variables('namingConvention').prefixes.CommSvcEmail, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]",
     "var_csemaildom_name": "AzureManagedDomain",
@@ -130,6 +133,210 @@
     "var_uaid_name": "[concat('/subscriptions/',variables('var_sub_id'),'/resourcegroups/', resourceGroup().Name, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', tolower(variables('var_id_name')))]"
   },
   "resources": [
+    // ACS - Email
+    {
+      "type": "Microsoft.Communication/emailServices",
+      "apiVersion": "2023-03-01-preview",
+      "name": "[variables('var_csemail_name')]",
+      "location": "global",
+      "tags": {
+        "displayName": "CommunicationServices Email",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "properties": {
+        "dataLocation": "UK"
+      }
+    },
+    {
+      "type": "Microsoft.Communication/emailServices/domains",
+      "apiVersion": "2023-03-01-preview",
+      "name": "[concat(variables('var_csemail_name'), '/',variables('var_csemaildom_name'))]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Communication/emailServices', variables('var_csemail_name'))]"
+      ],
+      "tags": {
+        "displayName": "CommunicationServices Email Domain",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "properties": {
+        "domainManagement": "AzureManaged",
+        "userEngagementTracking": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Communication/CommunicationServices",
+      "apiVersion": "2023-03-01-preview",
+      "name": "[variables('var_cs_name')]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
+      ],
+      "properties": {
+        "dataLocation": "UK",
+        "linkedDomains": [
+          "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
+        ]
+      },
+      "tags": {
+        "displayName": "CommunicationServices",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+    // Event Hubs
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[variables('var_evhns_name')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "properties": {
+        "minimumTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false,
+        "zoneRedundant": true,
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0,
+        "kafkaEnabled": false
+      },
+      "tags": {
+        "displayName": "EventHub Namespace",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/authorizationrules",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evhns_name'), '/RootManageSharedAccessKey')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      },
+      "tags": {
+        "displayName": "EventHub authorization rules",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evhns_name'), '/', variables('var_evh_name'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+      ],
+      "properties": {
+        "retentionDescription": {
+          "cleanupPolicy": "Delete",
+          "retentionTimeInHours": 1
+        },
+        "messageRetentionInDays": 1,
+        "partitionCount": 2,
+        "status": "Active"
+      },
+      "tags": {
+        "displayName": "EventHub hub",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/networkRuleSets",
+      "apiVersion": "2022-10-01-preview",
+      "name": "[concat(variables('var_evhns_name'), '/default')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+      ],
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "defaultAction": "Allow",
+        "virtualNetworkRules": [],
+        "ipRules": []
+      },
+      "tags": {
+        "displayName": "EventHub network Rule Sets",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "name": "[variables('var_evhds_name')]",
+      "scope": "[concat('Microsoft.Communication/CommunicationServices/',variables('var_cs_name'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+      ],
+      "properties": {
+        "logs": [
+          {
+            "category": "EmailSendMailOperational",
+            "enabled": true,
+            "categoryGroup": null,
+            "retentionPolicy": {
+              "days": 0,
+              "enabled": false
+            }
+          },
+          {
+            "category": "EmailStatusUpdateOperational",
+            "enabled": true,
+            "categoryGroup": null,
+            "retentionPolicy": {
+              "days": 0,
+              "enabled": false
+            }
+          },
+          {
+            "category": "EmailUserEngagementOperational",
+            "enabled": true,
+            "categoryGroup": null,
+            "retentionPolicy": {
+              "days": 0,
+              "enabled": false
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "timeGrain": null,
+            "enabled": false,
+            "retentionPolicy": {
+              "days": 0,
+              "enabled": false
+            },
+            "category": "Traffic"
+          }
+        ],
+        "eventHubAuthorizationRuleId": "[variables('var_evhns_id')]",
+        "eventHubName": "[variables('var_evh_name')]"
+      },
+      "tags": {
+        "displayName": "CommunicationServices Diagnostic Settings",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      }
+    },
+
     {
       "apiVersion": "2016-01-01",
       "dependsOn": [],
@@ -215,7 +422,7 @@
       "name": "[variables('var_id_name')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "displayName": "Microsoft.ManagedIdentity/userAssignedIdentities",
+        "displayName": "UserAssignedIdentities",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
@@ -247,97 +454,80 @@
         "enterpriseGradeCdnStatus": "Disabled"
       },
       "tags": {
-        "displayName": "Microsoft.Web/staticSites",
+        "displayName": "StaticSites",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       }
     },
 
+    // Signalr
     {
-      "apiVersion": "2021-02-01",
+      "type": "Microsoft.SignalRService/SignalR",
+      "apiVersion": "2022-02-01",
+      "name": "[variables('var_sr_name')]",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', variables('var_svcpln_name'))]",
-        "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
       ],
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_S1",
+        "tier": "Standard",
+        "size": "S1",
+        "capacity": 1
+      },
+      "kind": "SignalR",
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
           "[variables('var_uaid_name')]": {}
         }
       },
-      "kind": "functionapp",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('var_azf_name')]",
       "properties": {
-        "state": "[parameters('para_funcState')]",
-        "name": "[variables('var_azf_name')]",
-        "keyVaultReferenceIdentity": "[variables('var_uaid_name')]",
-        "siteConfig": {
-          "alwaysOn": "[parameters('para_alwaysOn')]"
+        "tls": {
+          "clientCertEnabled": false
         },
-        "netFrameworkVersion": "v6.0",
-        "clientAffinityEnabled": false,
-        "serverFarmId": "[variables('var_svcpln_name')]",
-        //        "hostingEnvironment": "[variables('var_svcpln_env')]",
-        "hostNameSslStates": [],
-        "httpsOnly": true
-      },
-      "resources": [
-      ],
-      "tags": {
-        "displayName": "[concat('Function - ', variables('var_azf_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "type": "Microsoft.Web/sites"
-    },
-    {
-      "apiVersion": "2021-01-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
-        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "name": "[concat(variables('var_azf_name'), '/web')]",
-      "properties": {
-        "alwaysOn": "[parameters('para_alwaysOn')]",
-        "netFrameworkVersion": "v6.0",
-        //"vnetname": "[parameters('para_vnet_name')]"
+        "features": [
+          {
+            "flag": "ServiceMode",
+            "value": "Serverless",
+            "properties": {}
+          },
+          {
+            "flag": "EnableConnectivityLogs",
+            "value": "True",
+            "properties": {}
+          }
+        ],
         "cors": {
           "allowedOrigins": [
-            "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
-            "http://localhost:4200"
-          ],
-          "supportCredentials": true
+            "*"
+          ]
         },
-        "apiDefinition": {
-          "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]"
-        }
+        "upstream": {},
+        "networkACLs": {
+          "defaultAction": "Deny",
+          "publicNetwork": {
+            "allow": [
+              "ServerConnection",
+              "ClientConnection",
+              "RESTAPI",
+              "Trace"
+            ]
+          },
+          "privateEndpoints": []
+        },
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false,
+        "disableAadAuth": false
       },
       "tags": {
-        "displayName": "[concat('Function Web- ', variables('var_azf_name'))]",
+        "displayName": "SignalR",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
-      },
-      "type": "Microsoft.Web/sites/config"
+      }
     },
-    {
-      "apiVersion": "2021-01-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "name": "[concat(variables('var_azf_name'), '/metadata')]",
-      "properties": {
-        "CURRENT_STACK": "dotnet"
-      },
-      "tags": {
-        "displayName": "Az Function metadata",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "type": "Microsoft.Web/sites/config"
-    },
+
+    // Key Vault
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
@@ -469,255 +659,41 @@
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
     {
-      "apiVersion": "2021-01-01",
+      "apiVersion": "2016-10-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
-        "[resourceId('Microsoft.KeyVault/vaults/', variables('var_kv_name'))]",
-        "secretsCopy",
-        "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
-        //        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
       ],
-      "location": "[resourceGroup().location]",
-      "name": "[concat(variables('var_azf_name'),'/appsettings')]",
+      "name": "[concat(variables('var_kv_name'), '/CommunicationServicesCS')]",
       "properties": {
-        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
-        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('var_appin_name'))).InstrumentationKey]",
-        "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
-        "WEBSITE_RUN_FROM_PACKAGE": 1,
-        "FUNCTIONS_EXTENSION_VERSION": "~4",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "WEBSITE_CONTENTSHARE": "[variables('var_azf_name')]",
-        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
-
-        "AzureStorageAcct": "[variables('var_str_name')]",
-        "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
-
-        "CommunicationServicesCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=CommunicationServicesCS)')]",
-        "FromEmailAddress": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=FromEmailAddress)')]",
-        "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
-        "SignalRCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SignalRCS)')]",
-        "SWADefultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefultHostName)')]",
-        "EventHubName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubName)')]",
-        "EventHubCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubCS)')]"
+        "contentType": "text/plain",
+        "value": "[concat(listKeys(resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name')), '2023-03-01-preview').primaryConnectionString)]"
       },
       "tags": {
-        "displayName": "[concat('Function Settings- ', variables('var_azf_name'))]",
+        "displayName": "Microsoft.KeyVault/vaults/secrets - CommunicationServicesCS",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
-      "type": "Microsoft.Web/sites/config"
+      "type": "Microsoft.KeyVault/vaults/secrets"
     },
-
-    //{
-    //  "type": "Microsoft.EventHub/namespaces",
-    //  "apiVersion": "2022-10-01-preview",
-    //  "name": "[variables('var_evhns_name')]",
-    //  "location": "[resourceGroup().location]",
-    //  "sku": {
-    //    "name": "Basic",
-    //    "tier": "Basic",
-    //    "capacity": 1
-    //  },
-    //  "properties": {
-    //    "minimumTlsVersion": "1.2",
-    //    "publicNetworkAccess": "Enabled",
-    //    "disableLocalAuth": false,
-    //    "zoneRedundant": true,
-    //    "isAutoInflateEnabled": false,
-    //    "maximumThroughputUnits": 0,
-    //    "kafkaEnabled": false
-    //  },
-    //  "tags": {
-    //    "displayName": "[concat('EventHub Namespace - ', variables('var_evhns_name'))]",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    //{
-    //  "type": "Microsoft.EventHub/namespaces/authorizationrules",
-    //  "apiVersion": "2022-10-01-preview",
-    //  "name": "[concat(variables('var_evhns_name'), '/RootManageSharedAccessKey')]",
-    //  "location": "[resourceGroup().location]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "properties": {
-    //    "rights": [
-    //      "Listen",
-    //      "Manage",
-    //      "Send"
-    //    ]
-    //  },
-    //  "tags": {
-    //    "displayName": "[concat('EventHub authorization rules - ', variables('var_evhns_name'))]",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    //{
-    //  "type": "Microsoft.EventHub/namespaces/eventhubs",
-    //  "apiVersion": "2022-10-01-preview",
-    //  "name": "[concat(variables('var_evhns_name'), '/', variables('var_evh_name'))]",
-    //  "location": "[resourceGroup().location]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "properties": {
-    //    "retentionDescription": {
-    //      "cleanupPolicy": "Delete",
-    //      "retentionTimeInHours": 1
-    //    },
-    //    "messageRetentionInDays": 1,
-    //    "partitionCount": 2,
-    //    "status": "Active"
-    //  },
-    //  "tags": {
-    //    "displayName": "[concat('EventHub hub - ', variables('var_evh_name'))]",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-
-    //{
-    //  "type": "Microsoft.EventHub/namespaces/networkRuleSets",
-    //  "apiVersion": "2022-10-01-preview",
-    //  "name": "[concat(variables('var_evhns_name'), '/default')]",
-    //  "location": "[resourceGroup().location]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "properties": {
-    //    "publicNetworkAccess": "Enabled",
-    //    "defaultAction": "Allow",
-    //    "virtualNetworkRules": [],
-    //    "ipRules": []
-    //  },
-    //  "tags": {
-    //    "displayName": "[concat('EventHub network Rule Sets - ', variables('var_evhns_name'))]",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-
-    //{
-    //  "type": "Microsoft.Authorization/roleAssignments",
-    //  "apiVersion": "2022-04-01",
-    //  "name": "[parameters('para_role1')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-    //  ],
-    //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f526a384-b230-433a-b45c-95f59c4a2dec')]",
-    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Owner",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    //{
-    //  "type": "Microsoft.Authorization/roleAssignments",
-    //  "apiVersion": "2022-04-01",
-    //  "name": "[parameters('para_role2')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-    //  ],
-    //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')]",
-    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Receiver",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    //{
-    //  "type": "Microsoft.Authorization/roleAssignments",
-    //  "apiVersion": "2022-04-01",
-    //  "name": "[parameters('para_role3')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-    //  ],
-    //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
-    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Secrets User",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-
     {
-      "type": "Microsoft.SignalRService/SignalR",
-      "apiVersion": "2022-02-01",
-      "name": "[variables('var_sr_name')]",
+      "apiVersion": "2016-10-01",
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
       ],
-      "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "Standard_S1",
-        "tier": "Standard",
-        "size": "S1",
-        "capacity": 1
-      },
-      "kind": "SignalR",
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[variables('var_uaid_name')]": {}
-        }
-      },
+      "name": "[concat(variables('var_kv_name'), '/FromEmailAddress')]",
       "properties": {
-        "tls": {
-          "clientCertEnabled": false
-        },
-        "features": [
-          {
-            "flag": "ServiceMode",
-            "value": "Serverless",
-            "properties": {}
-          },
-          {
-            "flag": "EnableConnectivityLogs",
-            "value": "True",
-            "properties": {}
-          }
-        ],
-        "cors": {
-          "allowedOrigins": [
-            "*"
-          ]
-        },
-        "upstream": {},
-        "networkACLs": {
-          "defaultAction": "Deny",
-          "publicNetwork": {
-            "allow": [
-              "ServerConnection",
-              "ClientConnection",
-              "RESTAPI",
-              "Trace"
-            ]
-          },
-          "privateEndpoints": []
-        },
-        "publicNetworkAccess": "Enabled",
-        "disableLocalAuth": false,
-        "disableAadAuth": false
+        "contentType": "text/plain",
+        "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
       },
       "tags": {
-        "displayName": "Microsoft.SignalRService/SignalR",
+        "displayName": "Microsoft.KeyVault/vaults/secrets - FromEmailAddress",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
-      }
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
     },
-
-
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
@@ -772,108 +748,19 @@
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
-    //{
-    //  "apiVersion": "2016-10-01",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "name": "[concat(variables('var_kv_name'), '/EventHubCS')]",
-    //  "properties": {
-    //    "contentType": "text/plain",
-    //    "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ConnectionString",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  },
-    //  "type": "Microsoft.KeyVault/vaults/secrets"
-    //},
-    //{
-    //  "apiVersion": "2016-10-01",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
-    //  "properties": {
-    //    "contentType": "text/plain",
-    //    "value": "[variables('var_evhns_name')]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  },
-    //  "type": "Microsoft.KeyVault/vaults/secrets"
-    //},
-
-    {
-      "type": "Microsoft.Communication/emailServices",
-      "apiVersion": "2023-03-01-preview",
-      "name": "[variables('var_csemail_name')]",
-      "location": "global",
-      "tags": {
-        "displayName": "[concat('Microsoft.Communication/emailServices - ', variables('var_csemail_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "properties": {
-        "dataLocation": "UK"
-      }
-    },
-    {
-      "type": "Microsoft.Communication/emailServices/domains",
-      "apiVersion": "2023-03-01-preview",
-      "name": "[concat(variables('var_csemail_name'), '/',variables('var_csemaildom_name'))]",
-      "location": "global",
-      "dependsOn": [
-        "[resourceId('Microsoft.Communication/emailServices', variables('var_csemail_name'))]"
-      ],
-      "tags": {
-        "displayName": "[concat('Microsoft.Communication/emailServices/domains - ', variables('var_csemaildom_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      },
-      "properties": {
-        "domainManagement": "AzureManaged",
-        "userEngagementTracking": "Enabled"
-      }
-    },
-    {
-      "type": "Microsoft.Communication/CommunicationServices",
-      "apiVersion": "2023-03-01-preview",
-      "name": "[variables('var_cs_name')]",
-      "location": "global",
-      "dependsOn": [
-        "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
-      ],
-      "properties": {
-        "dataLocation": "UK",
-        "linkedDomains": [
-          "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
-        ]
-      },
-      "tags": {
-        "displayName": "[concat('Microsoft.Communication/CommunicationServices - ', variables('var_cs_name'))]",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    },
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
       ],
-      "name": "[concat(variables('var_kv_name'), '/CommunicationServicesCS')]",
+      "name": "[concat(variables('var_kv_name'), '/EventHubCS')]",
       "properties": {
         "contentType": "text/plain",
-        "value": "[concat(listKeys(resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name')), '2023-03-01-preview').primaryConnectionString)]"
+        "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
       },
       "tags": {
-        "displayName": "Microsoft.KeyVault/vaults/secrets - CommunicationServicesCS",
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ConnectionString",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
@@ -883,165 +770,243 @@
       "apiVersion": "2016-10-01",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-        "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
       ],
-      "name": "[concat(variables('var_kv_name'), '/FromEmailAddress')]",
+      "name": "[concat(variables('var_kv_name'), '/EventHubName')]",
       "properties": {
         "contentType": "text/plain",
-        "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
+        "value": "[variables('var_evhns_name')]"
       },
       "tags": {
-        "displayName": "Microsoft.KeyVault/vaults/secrets - FromEmailAddress",
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub Name",
         "environment": "[parameters('para_target_env')]",
         "project": "[parameters('para_application_name')]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
-    },
-
-    {
-      "type": "Microsoft.EventGrid/systemTopics",
-      "apiVersion": "2022-06-15",
-      "name": "[variables('var_evgt_name')]",
-      "location": "global",
-      //"identity": {
-      //  "type": "UserAssigned",
-      //  "userAssignedIdentities": {
-      //    "[variables('var_uaid_name')]": {}
-      //  }
-      //},
-      "properties": {
-        "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
-        "topicType": "Microsoft.Communication.CommunicationServices"
-      }
-    },
-
-
-    {
-      "type": "Microsoft.Web/sites/functions",
-      "apiVersion": "2022-09-01",
-      "name": "[concat(variables('var_azf_name'), '/MailEventSubscription')]",
-      "location": "North Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
-      ],
-      "properties": {
-        //"script_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/site/wwwroot/Sendmail.dll",
-        //"test_data_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/data/Functions/sampledata/ecgtemail.dat",
-        //"href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/functions/ecgtemail",
-        "config": {},
-        "language": "dotnet-isolated",
-        "isDisabled": false
-      }
-    },
-
-    {
-      "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-      "apiVersion": "2022-06-15",
-      "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]",
-        "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]"
-      ],
-      "properties": {
-        "destination": {
-          "properties": {
-            "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]",
-            "maxEventsPerBatch": 1,
-            "preferredBatchSizeInKilobytes": 64
-          },
-          "endpointType": "AzureFunction"
-        },
-        "filter": {
-          "includedEventTypes": [
-            "Microsoft.Communication.EmailEngagementTrackingReportReceived",
-            "Microsoft.Communication.EmailDeliveryReportReceived"
-          ],
-          "enableAdvancedFilteringOnArrays": true
-        },
-        "labels": [],
-        "eventDeliverySchema": "EventGridSchema",
-        "retryPolicy": {
-          "maxDeliveryAttempts": 30,
-          "eventTimeToLiveInMinutes": 1440
-        }
-      }
     }
+
+    //// Azure Function
     //{
-    //  "type": "Microsoft.Insights/diagnosticSettings",
-    //  "apiVersion": "2021-05-01-preview",
-    //  "name": "ds-evh-acs-poc-sendmail-vse-ne",
+    //  "apiVersion": "2021-02-01",
     //  "dependsOn": [
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+    //    "[concat('Microsoft.Web/serverfarms/', variables('var_svcpln_name'))]",
+    //    "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))]"
     //  ],
+    //  "identity": {
+    //    "type": "UserAssigned",
+    //    "userAssignedIdentities": {
+    //      "[variables('var_uaid_name')]": {}
+    //    }
+    //  },
+    //  "kind": "functionapp",
+    //  "location": "[resourceGroup().location]",
+    //  "name": "[variables('var_azf_name')]",
     //  "properties": {
-    //    "logs": [
-    //      {
-    //        "category": "EmailSendMailOperational",
-    //        "categoryGroup": null,
-    //        "enabled": true,
-    //        "retentionPolicy": {
-    //          "days": 0,
-    //          "enabled": false
-    //        }
-    //      },
-    //      {
-    //        "category": "EmailStatusUpdateOperational",
-    //        "categoryGroup": null,
-    //        "enabled": true,
-    //        "retentionPolicy": {
-    //          "days": 0,
-    //          "enabled": false
-    //        }
-    //      },
-    //      {
-    //        "category": "EmailUserEngagementOperational",
-    //        "categoryGroup": null,
-    //        "enabled": true,
-    //        "retentionPolicy": {
-    //          "days": 0,
-    //          "enabled": false
-    //        }
-    //      }
-    //    ],
-    //    "metrics": [
-    //      {
-    //        "timeGrain": null,
-    //        "enabled": false,
-    //        "retentionPolicy": {
-    //          "days": 0,
-    //          "enabled": false
-    //        },
-    //        "category": "Traffic"
-    //      }
-    //    ],
-    //    //        "eventHubAuthorizationRuleId": "[concat(reference(resourceId('Microsoft.EventHub', variables('var_evhns_name')), '2023-03-01-preview'),'authorizationrules/RootManageSharedAccessKey')]",
-    //    ////        "eventHubAuthorizationRuleId": "/subscriptions/3a6d7f25-fdd2-40d1-81c3-eb6128fea021/resourcegroups/rg-poc-sendmail-vse-ne/providers/Microsoft.EventHub/namespaces/evhns-poc-sendmail-vse-ne/authorizationrules/RootManageSharedAccessKey",
-    //    "eventHubAuthorizationRuleId": "[variables('var_evhns_id')]",
-    //    "eventHubName": "[variables('var_evh_name')]"
+    //    "state": "[parameters('para_funcState')]",
+    //    "name": "[variables('var_azf_name')]",
+    //    "keyVaultReferenceIdentity": "[variables('var_uaid_name')]",
+    //    "siteConfig": {
+    //      "alwaysOn": "[parameters('para_alwaysOn')]"
+    //    },
+    //    "netFrameworkVersion": "v6.0",
+    //    "clientAffinityEnabled": false,
+    //    "serverFarmId": "[variables('var_svcpln_name')]",
+    //    //        "hostingEnvironment": "[variables('var_svcpln_env')]",
+    //    "hostNameSslStates": [],
+    //    "httpsOnly": true
+    //  },
+    //  "resources": [
+    //  ],
+    //  "tags": {
+    //    "displayName": "[concat('Function - ', variables('var_azf_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.Web/sites"
+    //},
+    //{
+    //  "apiVersion": "2021-01-01",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
+    //    "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
+    //  ],
+    //  "location": "[resourceGroup().location]",
+    //  "name": "[concat(variables('var_azf_name'), '/web')]",
+    //  "properties": {
+    //    "alwaysOn": "[parameters('para_alwaysOn')]",
+    //    "netFrameworkVersion": "v6.0",
+    //    //"vnetname": "[parameters('para_vnet_name')]"
+    //    "cors": {
+    //      "allowedOrigins": [
+    //        "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]",
+    //        "http://localhost:4200"
+    //      ],
+    //      "supportCredentials": true
+    //    },
+    //    "apiDefinition": {
+    //      "url": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('var_azf_name'))).defaultHostName, '/api/swagger.json')]"
+    //    }
+    //  },
+    //  "tags": {
+    //    "displayName": "[concat('Function Web- ', variables('var_azf_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.Web/sites/config"
+    //},
+    //{
+    //  "apiVersion": "2021-01-01",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+    //  ],
+    //  "location": "[resourceGroup().location]",
+    //  "name": "[concat(variables('var_azf_name'), '/metadata')]",
+    //  "properties": {
+    //    "CURRENT_STACK": "dotnet"
+    //  },
+    //  "tags": {
+    //    "displayName": "Az Function metadata",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.Web/sites/config"
+    //},
+    //{
+    //  "apiVersion": "2021-01-01",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]",
+    //    "[resourceId('Microsoft.KeyVault/vaults/', variables('var_kv_name'))]",
+    //    "secretsCopy",
+    //    "[resourceId('Microsoft.Web/staticSites', variables('var_swa_name'))]"
+    //    //        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+    //  ],
+    //  "location": "[resourceGroup().location]",
+    //  "name": "[concat(variables('var_azf_name'),'/appsettings')]",
+    //  "properties": {
+    //    "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+    //    "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', variables('var_appin_name'))).InstrumentationKey]",
+    //    "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
+    //    "WEBSITE_RUN_FROM_PACKAGE": 1,
+    //    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    //    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    //    "WEBSITE_CONTENTSHARE": "[variables('var_azf_name')]",
+    //    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('var_str_name'),';AccountKey=',listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+
+    //    "AzureStorageAcct": "[variables('var_str_name')]",
+    //    "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
+
+    //    "CommunicationServicesCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=CommunicationServicesCS)')]",
+    //    "FromEmailAddress": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=FromEmailAddress)')]",
+    //    "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
+    //    "SignalRCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SignalRCS)')]",
+    //    "SWADefultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefultHostName)')]",
+    //    "EventHubName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubName)')]",
+    //    "EventHubCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubCS)')]"
+    //  },
+    //  "tags": {
+    //    "displayName": "[concat('Function Settings- ', variables('var_azf_name'))]",
+    //    "environment": "[parameters('para_target_env')]",
+    //    "project": "[parameters('para_application_name')]"
+    //  },
+    //  "type": "Microsoft.Web/sites/config"
+    //},
+    ////{
+    ////  "type": "Microsoft.Web/sites/functions",
+    ////  "apiVersion": "2020-12-01",
+    ////  "name": "[concat(variables('var_azf_name'), '/MailEventSubscription')]",
+    ////  "location": "[resourceGroup().location]",
+    ////  "dependsOn": [
+    ////    "[resourceId('Microsoft.Web/sites', variables('var_azf_name'))]"
+    ////  ],
+    ////  "properties": {
+    ////    //"script_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/site/wwwroot/Sendmail.dll",
+    ////    //"test_data_href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/vfs/data/Functions/sampledata/ecgtemail.dat",
+    ////    //"href": "https://func-poc-sendmail-vse-ne.azurewebsites.net/admin/functions/ecgtemail",
+    ////    "config": {
+    ////      "disabled": true
+    ////    },
+    ////    //"language": "dotnet-isolated",
+    ////    "isDisabled": true
+    ////  }
+    ////}
+
+
+
+
+
+
+
+
+    //// Event Grid
+    //{
+    //  "type": "Microsoft.EventGrid/systemTopics",
+    //  "apiVersion": "2022-06-15",
+    //  "dependsOn": [
+    //    "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+    //  ],
+    //  "name": "[variables('var_evgt_name')]",
+    //  "location": "global",
+    //  //"identity": {
+    //  //  "type": "UserAssigned",
+    //  //  "userAssignedIdentities": {
+    //  //    "[variables('var_uaid_name')]": {}
+    //  //  }
+    //  //},
+    //  "properties": {
+    //    "source": "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]",
+    //    "topicType": "Microsoft.Communication.CommunicationServices"
     //  }
     //}
+    ////{
+    ////  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+    ////  "apiVersion": "2022-06-15",
+    ////  "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
+    ////  "dependsOn": [
+    ////    "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]",
+    ////    "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]"
+    ////  ],
+    ////  "properties": {
+    ////    "destination": {
+    ////      "properties": {
+    ////        "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventSubscription')]",
+    ////        "maxEventsPerBatch": 1,
+    ////        "preferredBatchSizeInKilobytes": 64
+    ////      },
+    ////      "endpointType": "AzureFunction"
+    ////    },
+    ////    "filter": {
+    ////      "includedEventTypes": [
+    ////        "Microsoft.Communication.EmailEngagementTrackingReportReceived",
+    ////        "Microsoft.Communication.EmailDeliveryReportReceived"
+    ////      ],
+    ////      "enableAdvancedFilteringOnArrays": true
+    ////    },
+    ////    "labels": [],
+    ////    "eventDeliverySchema": "EventGridSchema",
+    ////    "retryPolicy": {
+    ////      "maxDeliveryAttempts": 30,
+    ////      "eventTimeToLiveInMinutes": 1440
+    ////    }
+    ////  }
+    ////}
 
   ],
   "outputs": {
-    "result": {
-      "type": "string",
-      "value": "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
-    },
-    "email": {
-      "type": "string",
-      "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
-    }
+    //"result": {
+    //  "type": "string",
+    //  "value": "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
+    //},
+    //"email": {
+    //  "type": "string",
+    //  "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
+    //},
+    //"eventhubNS": {
+    //  "type": "string",
+    //  "value": "[variables('var_evhns_id')]"
+    //},
     //"eventhub": {
     //  "type": "string",
-    //  "value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
-    //}
-    //"eventhubSend": {
-    //  "type": "string",
-    //  "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', variables('var_evhns_name'), variables('var_evh_name'), 'Send'), '2022-10-01-preview').primaryConnectionString]"
-    //},
-    //"eventhubListen": {
-    //  "type": "string",
-    //  "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', variables('var_evhns_name'), variables('var_evh_name'), 'Listen'), '2022-10-01-preview').primaryConnectionString]"
+    //  "value": "[variables('var_evh_name')]"
     //}
   }
 }
