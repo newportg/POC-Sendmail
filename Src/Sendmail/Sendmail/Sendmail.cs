@@ -66,7 +66,7 @@ namespace Sendmail
 
         [Function("MailEventSubscription")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction MailEventSubscription([EventHubTrigger(eventHubName:"%EventHubName%", Connection = "EventHubCS")] string[] input)
+        public SignalRMessageAction MailEventSubscription([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input)
         {
             _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
