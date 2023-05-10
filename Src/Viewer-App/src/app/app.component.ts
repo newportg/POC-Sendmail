@@ -155,11 +155,11 @@ export class Item {
       }
     }
     else if (source.eventType == "Microsoft.Communication.EmailEngagementTrackingReportReceived") {
-      if (source.data.engagementType == "View") {
+      if (source.data.engagementType == "view") {
         this.gstatus = "Viewed";
         this.gviewed = true;
       }
-      else if (source.data.engagementType == "Click") {
+      else if (source.data.engagementType == "click") {
         this.gstatus = "Clicked :" + source.data.engagementContext;
         this.gviewed = true;
       }
