@@ -67,36 +67,15 @@ export class AppComponent {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-      var result = this.eventss.find(o => o.id === jsonObject.messageId);
+      var result = this.eventss.find(o => o.id === jsonObject.data.messageId);
       if (result == null) {
-        var it = this.eventss.push(new Item(jsonObject.messageId, false, false, false, ""));
+        var it = this.eventss.push(new Item(jsonObject.data.messageId, false, false, false, ""));
         this.eventss[it - 1].UpdateGrid(jsonObject);
       }
       if (result != null) {
         result.UpdateGrid(jsonObject);
       }
     });
-
-    //// event grid
-    //// Handle incoming events for the specific target
-    //this.hubConnection.on("newEvent", (event) => {
-    //  this.events.push(event);
-    //  var jsonObject: any = JSON.parse(event);
-
-    //  for (let i = 0; i < this.eventss.length; i++) {
-    //    if (this.eventss[i].id == jsonObject.messageId) {
-    //      if (jsonObject.status == "Delivered")
-    //        this.eventss[i].delivered = true;
-    //      if (jsonObject.engagementType == "view")
-    //        this.eventss[i].viewed = true;
-    //    }
-    //  }
-
-    //  var result = this.eventss.find(o => o.id === jsonObject.messageId);
-    //  if( result == null)
-    //    this.eventss.push(new Item(jsonObject.messageId, jsonObject.status == "Delivered" ? true : false, jsonObject.engagementType == "view" ? true:false));
-    //});
-
   }
 }
 
@@ -148,6 +127,10 @@ export class Item {
     else if (source.properties.OperationCategory == "EmailUserEngagementOperational") {
       if (source.properties.OperationType == "UserEngagementUpdate") {
         if (source.properties.EngagementType == "View") {
+          this.hviewed = true;
+        }
+        else if (source.properties.EngagementType == "Click") {
+          this.hstatus = "Clicked :" + source.data.engagementContext;
           this.hviewed = true;
         }
       }

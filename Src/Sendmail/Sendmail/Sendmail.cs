@@ -54,7 +54,7 @@ namespace Sendmail
         public SignalRMessageAction MailEventGridSubscription([EventGridTrigger] EventGridEvent input)
         {
             _logger.LogInformation(input.Data.ToString());
-            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
+            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input);
             _logger.LogInformation(data);
 
             return new SignalRMessageAction("newGridEvent")
