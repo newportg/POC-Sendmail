@@ -107,7 +107,7 @@ namespace Sendmail
                     recipientAddress: "gary.newport@zoomalong.co.uk",
 
                     subject: "This is the subject",
-                    htmlContent: "<html><body>This is the html body</body></html>");
+                    htmlContent: "<html><body>This is the html body http://maps.google.com </body></html>");
                 Console.WriteLine($"Email Sent. Status = {emailSendOperation.Value.Status}");
 
                 /// Get the OperationId so that it can be used for tracking the message for troubleshooting
