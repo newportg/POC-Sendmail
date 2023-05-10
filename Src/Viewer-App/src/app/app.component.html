@@ -5,7 +5,16 @@
 
   <table border="1">
     <tr>
+      <th></th>
+      <th colspan="4">Event Hub</th>
+      <th colspan="4">Event Grid</th>
+    </tr>
+    <tr>
       <th>Id</th>
+      <th>Sent</th>
+      <th>Delivered</th>
+      <th>Viewed</th>
+      <th>Status</th>
       <th>Sent</th>
       <th>Delivered</th>
       <th>Viewed</th>
@@ -13,10 +22,14 @@
     </tr>
     <tr class="card" *ngFor="let event of eventss">
       <td>{{ event.id }}</td>
-      <td><input type="checkbox" readonly [checked]=event.sent></td>
-      <td><input type="checkbox" readonly [checked]=event.delivered></td>
-      <td><input type="checkbox" readonly [checked]=event.viewed></td>
-      <td><input type="text" readonly [value]=event.status></td>
+      <td><input type="checkbox" readonly [checked]=event.hsent></td>
+      <td><input type="checkbox" readonly [checked]=event.hdelivered></td>
+      <td><input type="checkbox" readonly [checked]=event.hviewed></td>
+      <td><input type="text" readonly [value]=event.hstatus></td>
+      <td><input type="checkbox" readonly [checked]=event.gsent></td>
+      <td><input type="checkbox" readonly [checked]=event.gdelivered></td>
+      <td><input type="checkbox" readonly [checked]=event.gviewed></td>
+      <td><input type="text" readonly [value]=event.gstatus></td>
     </tr>
   </table>
 

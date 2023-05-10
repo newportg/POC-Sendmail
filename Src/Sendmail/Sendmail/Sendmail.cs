@@ -49,28 +49,28 @@ namespace Sendmail
 
         }
 
-        //[Function("MailEventSubscription")]
-        //[SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        //public SignalRMessageAction MailEventSubscription([EventGridTrigger] EventGridEvent input)
-        //{
-        //    _logger.LogInformation(input.Data.ToString());
-        //    var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
-        //    _logger.LogInformation(data);
-
-        //    return new SignalRMessageAction("newEvent")
-        //    {
-        //        // broadcast to all the connected clients without specifying any connection, user or group.
-        //        Arguments = new[] { data },
-        //    };
-        //}
-
-        [Function("MailEventSubscription")]
+        [Function("MailEventGridSubscription")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction MailEventSubscription([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input)
+        public SignalRMessageAction MailEventGridSubscription([EventGridTrigger] EventGridEvent input)
+        {
+            _logger.LogInformation(input.Data.ToString());
+            var data = Newtonsoft.Json.JsonConvert.SerializeObject(input.Data);
+            _logger.LogInformation(data);
+
+            return new SignalRMessageAction("newGridEvent")
+            {
+                // broadcast to all the connected clients without specifying any connection, user or group.
+                Arguments = new[] { data },
+            };
+        }
+
+        [Function("MailEventHubSubscription")]
+        [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
+        public SignalRMessageAction MailEventHubSubscription([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input)
         {
             _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
-            return new SignalRMessageAction("newEvent")
+            return new SignalRMessageAction("newHubEvent")
             {
                 // broadcast to all the connected clients without specifying any connection, user or group.
                 Arguments = new[] { input[0] },
