@@ -63,7 +63,7 @@ export class AppComponent {
       }
     });
 
-    this.hubConnection.on("newGidEvent", (event) => {
+    this.hubConnection.on("newGridEvent", (event) => {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
