@@ -741,7 +741,7 @@
       "properties": {
         "contentType": "text/plain",
         //"value": "[concat(listKeys(resourceId('Microsoft.SignalRService/SignalR', variables('var_sr_name')), '2020-05-01').primaryConnectionString)]",
-        "value": "[concat('Endpoint=https://',variables('var_sr_name'),'.service.signalr.net;AuthType=azure.msi;ClientId=',resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),';Version=1.0;')]"
+        "value": "[concat('Endpoint=https://',variables('var_sr_name'),'.service.signalr.net;AuthType=azure.msi;ClientId=',reference(concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))).ClientId,';Version=1.0;')]"
       },
       "tags": {
         "displayName": "Microsoft.KeyVault/vaults/secrets - SR ConnectionString",
@@ -986,10 +986,14 @@
 
   ],
   "outputs": {
-    //"result": {
-    //  "type": "string",
-    //  "value": "[concat('https://',reference(resourceId('Microsoft.Web/staticSites', variables('var_swa_name')),'2022-03-01').defaultHostName )]"
-    //},
+    "result": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))).ClientId]"
+    },
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+    }
     //"email": {
     //  "type": "string",
     //  "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
