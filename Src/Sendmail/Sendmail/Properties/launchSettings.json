@@ -3,7 +3,9 @@
     "Sendmail": {
       "commandName": "Project",
       "commandLineArgs": "--port 7236",
-      "launchBrowser": false
+      "environmentVariables": {
+        "AZURE_TENANT_ID": "55a71488-bbff-4451-a18d-a1bfa479293b"
+      }
     }
   }
 }

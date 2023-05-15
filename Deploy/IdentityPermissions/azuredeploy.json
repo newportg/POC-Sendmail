@@ -115,7 +115,7 @@
       "apiVersion": "2022-04-01",
       "name": "[parameters('para_role3')]",
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+        "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')))]"
       ],
       "properties": {
         "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",

@@ -760,7 +760,7 @@
       "properties": {
         "contentType": "text/plain",
         //"value": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('var_evhns_name'),'RootManageSharedAccessKey'),'2022-10-01-preview').primaryConnectionString]"
-        "value": "[concat('Endpoint=sb://',variables('var_evhns_name'),'.servicebus.windows.net/;Authentication=ManagedIdentity')]"
+        "value": "[concat('Endpoint=sb://',variables('var_evhns_name'),'.servicebus.windows.net/;Authentication=Managed Identity')]"
       },
       "tags": {
         "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ConnectionString",
@@ -787,6 +787,83 @@
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
+
+    //"ServiceBusConnection__fullyQualifiedNamespace":"evhns-poc-sendmail-vse-ne.servicebus.windows.net",
+    //"ServiceBusConnection__credential":"managedidentity",
+    //"ServiceBusConnection__clientId": "81178236-e2db-40cc-b0c6-2c5b9d8b9f8b",
+    //"ServiceBusConnection__tenantId": "55a71488-bbff-4451-a18d-a1bfa479293b",
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/ServiceBusConnection__fullyQualifiedNamespace')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat(variables('var_evhns_name'),'.servicebus.windows.net')]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ServiceBusConnection__fullyQualifiedNamespace",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/ServiceBusConnection__credential')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "managedidentity"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ServiceBusConnection__credential",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/ServiceBusConnection__clientId')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[reference(concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('var_id_name'))).ClientId]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ServiceBusConnection__clientId",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+      ],
+      "name": "[concat(variables('var_kv_name'), '/ServiceBusConnection__tenantId')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[variables('var_ten_id')]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ServiceBusConnection__tenantId",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+
 
     // Azure Function
     {
@@ -902,7 +979,11 @@
         "SignalRCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SignalRCS)')]",
         "SWADefultHostName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SWADefultHostName)')]",
         "EventHubName": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubName)')]",
-        "EventHubCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubCS)')]"
+        "EventHubCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=EventHubCS)')]",
+        "ServiceBusConnection__fullyQualifiedNamespace": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=ServiceBusConnection:fullyQualifiedNamespace)')]",
+        "ServiceBusConnection__credential": "managedidentity",
+        "ServiceBusConnection__clientId": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=ServiceBusConnection:clientId)')]",
+        "ServiceBusConnection__tenantId": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=ServiceBusConnection:tenantId)')]"
       },
       "tags": {
         "displayName": "[concat('Function Settings- ', variables('var_azf_name'))]",

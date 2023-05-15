@@ -4,15 +4,31 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
 
-    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=2HJgcpplN2OwVa1lyLj42n1QUrBArSlleLO2vGOB8fiDux372/w9i8mo2JeAgasBNMHst7Mlid0wGovrnlv7Xw==",
-    //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=key;SharedAccessKey=yvBSLFAMiPxoS41Twj/NU3B73qVHsl/5K+AEhK6WXSo=;EntityPath=evh-poc-sendmail-vse-ne",
-    "EventHubName": "evh-poc-sendmail-vse-ne",
-    "FromEmailAddress": "donotreply@02c6d029-4381-4ab0-869a-fa77634c4e3e.azurecomm.net",
+    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=VU55Z4O/gc9SNjAyqbNFnJ8Uxti25rV4/UJnXCuOBu3VcFeQMYSRBm5xxisLT7io6MR4+qfofE0UWVnSRTLXLA==",
+    "FromEmailAddress": "donotreply@79cab4cd-bdc0-4143-9a52-130dbc50444b.azurecomm.net",
     "HubSqlConnection": "Server=HubCharlieSQL01.SA1.KF-INT.COM;Database=Hub.IntegrationTests.cdd-drl-dwn;Integrated Security=false;User ID=sa;Password=$Kf@admin;TrustServerCertificate=true;",
-    //"SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=IvseijyQaPdog/9MGNyxt+cod6lcXugVNhoQ+oKEjEs=;Version=1.0;"
 
-    "EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;Authentication=ManagedIdentity",
-    "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AuthType=azure.msi;ClientId=5fc80486-8c7a-4688-bbe1-e32b7670ef24;Version=1.0;"
+    //"SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=IvseijyQaPdog/9MGNyxt+cod6lcXugVNhoQ+oKEjEs=;Version=1.0;"
+    "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AuthType=azure.msi;ClientId=81178236-e2db-40cc-b0c6-2c5b9d8b9f8b;Version=1.0;",
+
+    //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;Authentication=Managed Identity",
+    //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Hv4oV3vmqps20dpieNI4oMy8ApH1zItWv+AEhLJFRVk=",
+    "EventHubName": "evh-poc-sendmail-vse-ne",
+
+    "ServiceBusConnection__fullyQualifiedNamespace": "evhns-poc-sendmail-vse-ne.servicebus.windows.net",
+    "ServiceBusConnection__credential": "managedidentity",
+    "ServiceBusConnection__clientId": "81178236-e2db-40cc-b0c6-2c5b9d8b9f8b",
+    //"ServiceBusConnection__tenantId": "55a71488-bbff-4451-a18d-a1bfa479293b",
+
+
+
+    //"EventHubCS__fullyQualifiedNamespace": "evhns-poc-sendmail-vse-ne.servicebus.windows.net",
+    //"EventHubCS__credential": "managedidentity",
+    //"EventHubCS__clientId": "81178236-e2db-40cc-b0c6-2c5b9d8b9f8b"
+
+    //"EventHubCS__tenantId": "55a71488-bbff-4451-a18d-a1bfa479293b"
+    //"EventHubCS__clientId": "2aa1f327-bb61-4cdf-b545-ef16ea1704e0",
+    //"EventHubCS__clientSecret": "YJN8Q~e8ILaLSUM2TZXxTiS7MAdA6rWDUQHYzc32"
   },
   "Host": {
     "CORS": "http://localhost:4200",

@@ -1,14 +1,12 @@
 using Azure;
 using Azure.Communication.Email;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
-using Microsoft.Azure.EventGrid.Models;
+using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
-using System.Text;
 
 namespace Sendmail
 {
@@ -66,7 +64,7 @@ namespace Sendmail
 
         [Function("MailEventHubSubscription")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction MailEventHubSubscription([EventHubTrigger("%EventHubName%", Connection = "EventHubCS")] string[] input)
+        public SignalRMessageAction MailEventHubSubscription([EventHubTrigger("%EventHubName%", Connection = "ServiceBusConnection")] string[] input)
         {
             _logger.LogInformation($"First Event Hubs triggered message: {input[0]}");
 
