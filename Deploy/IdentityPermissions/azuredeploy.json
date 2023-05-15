@@ -1,132 +1,132 @@
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "para_acronym_region": {
-      "type": "string",
-      "allowedValues": [
-        "ne",
-        "we"
-      ],
-      "defaultValue": "ne"
-    },
-    "para_target_env": {
-      "type": "string",
-      "allowedValues": [
-        "vse",
-        "dev",
-        "alp",
-        "bra",
-        "cha",
-        "pre",
-        "uat",
-        "prd"
-      ],
-      "defaultValue": "vse"
-    },
-    "para_appFamily_name": {
-      "type": "string",
-      "maxLength": 3
-    },
-    "para_application_name": {
-      "type": "string",
-      "maxLength": 12
-    },
-    "para_role1": {
-      "type": "string",
-      "defaultValue": "[newGuid()]"
-    },
-    "para_role2": {
-      "type": "string",
-      "defaultValue": "[newGuid()]"
-    },
-    "para_role3": {
-      "type": "string",
-      "defaultValue": "[newGuid()]"
-    }
-  },
-  "variables": {
-    "namingConvention": {
-      "prefixes": {
-        "Storage": "st",
-        "FunctionApp": "func",
-        "AppInsights": "appi",
-        "AppServicePlan": "plan",
-        "KeyVault": "kv",
-        "NetworkInterface": "nic",
-        "PrivateEndpoint": "pe",
-        "ResourceGroup": "rg",
-        "SqlServer": "sql",
-        "Identity": "id",
-        "EventGridTopic": "evgt",
-        "SignalR": "sigr",
-        "StaticWebApp": "stapp",
-        "EventHubNS": "evhns",
-        "EventHub": "evh",
-        "CommSvc": "acs",
-        "CommSvcEmail": "acse",
-        "CommSvcEmailDom": "acsedm"
-      }
-    },
-    "var_sub_id": "[subscription().subscriptionId]",
-    "var_ten_id": "[subscription().tenantId]",
-    "var_env_region_delim": "[ tolower(concat(parameters('para_target_env'), '-', parameters('para_acronym_region')))]",
-    "var_application_name_delim": "[ tolower(concat( parameters('para_appFamily_name'), '-', parameters('para_application_name'), '-'))]",
-    "var_id_name": "[concat(variables('namingConvention').prefixes.Identity, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]"
+//{
+//  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+//  "contentVersion": "1.0.0.0",
+//  "parameters": {
+//    "para_acronym_region": {
+//      "type": "string",
+//      "allowedValues": [
+//        "ne",
+//        "we"
+//      ],
+//      "defaultValue": "ne"
+//    },
+//    "para_target_env": {
+//      "type": "string",
+//      "allowedValues": [
+//        "vse",
+//        "dev",
+//        "alp",
+//        "bra",
+//        "cha",
+//        "pre",
+//        "uat",
+//        "prd"
+//      ],
+//      "defaultValue": "vse"
+//    },
+//    "para_appFamily_name": {
+//      "type": "string",
+//      "maxLength": 3
+//    },
+//    "para_application_name": {
+//      "type": "string",
+//      "maxLength": 12
+//    },
+//    "para_role1": {
+//      "type": "string",
+//      "defaultValue": "[newGuid()]"
+//    },
+//    "para_role2": {
+//      "type": "string",
+//      "defaultValue": "[newGuid()]"
+//    },
+//    "para_role3": {
+//      "type": "string",
+//      "defaultValue": "[newGuid()]"
+//    }
+//  },
+//  "variables": {
+//    "namingConvention": {
+//      "prefixes": {
+//        "Storage": "st",
+//        "FunctionApp": "func",
+//        "AppInsights": "appi",
+//        "AppServicePlan": "plan",
+//        "KeyVault": "kv",
+//        "NetworkInterface": "nic",
+//        "PrivateEndpoint": "pe",
+//        "ResourceGroup": "rg",
+//        "SqlServer": "sql",
+//        "Identity": "id",
+//        "EventGridTopic": "evgt",
+//        "SignalR": "sigr",
+//        "StaticWebApp": "stapp",
+//        "EventHubNS": "evhns",
+//        "EventHub": "evh",
+//        "CommSvc": "acs",
+//        "CommSvcEmail": "acse",
+//        "CommSvcEmailDom": "acsedm"
+//      }
+//    },
+//    "var_sub_id": "[subscription().subscriptionId]",
+//    "var_ten_id": "[subscription().tenantId]",
+//    "var_env_region_delim": "[ tolower(concat(parameters('para_target_env'), '-', parameters('para_acronym_region')))]",
+//    "var_application_name_delim": "[ tolower(concat( parameters('para_appFamily_name'), '-', parameters('para_application_name'), '-'))]",
+//    "var_id_name": "[concat(variables('namingConvention').prefixes.Identity, '-', variables('var_application_name_delim'),  variables('var_env_region_delim'))]"
 
-  },
-  "resources": [
-    //{
-    //  "type": "Microsoft.Authorization/roleAssignments",
-    //  "apiVersion": "2022-04-01",
-    //  "name": "[parameters('para_role1')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-    //  ],
-    //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f526a384-b230-433a-b45c-95f59c4a2dec')]",
-    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Owner",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    //{
-    //  "type": "Microsoft.Authorization/roleAssignments",
-    //  "apiVersion": "2022-04-01",
-    //  "name": "[parameters('para_role2')]",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
-    //  ],
-    //  "properties": {
-    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')]",
-    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Receiver",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  }
-    //},
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2022-04-01",
-      "name": "[parameters('para_role3')]",
-      "dependsOn": [
-        "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
-      },
-      "tags": {
-        "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Secrets User",
-        "environment": "[parameters('para_target_env')]",
-        "project": "[parameters('para_application_name')]"
-      }
-    }
-  ],
-  "outputs": {}
-}
+//  },
+//  "resources": [
+//    //{
+//    //  "type": "Microsoft.Authorization/roleAssignments",
+//    //  "apiVersion": "2022-04-01",
+//    //  "name": "[parameters('para_role1')]",
+//    //  "dependsOn": [
+//    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+//    //  ],
+//    //  "properties": {
+//    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'f526a384-b230-433a-b45c-95f59c4a2dec')]",
+//    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+//    //  },
+//    //  "tags": {
+//    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Owner",
+//    //    "environment": "[parameters('para_target_env')]",
+//    //    "project": "[parameters('para_application_name')]"
+//    //  }
+//    //},
+//    //{
+//    //  "type": "Microsoft.Authorization/roleAssignments",
+//    //  "apiVersion": "2022-04-01",
+//    //  "name": "[parameters('para_role2')]",
+//    //  "dependsOn": [
+//    //    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
+//    //  ],
+//    //  "properties": {
+//    //    "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')]",
+//    //    "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+//    //  },
+//    //  "tags": {
+//    //    "displayName": "Microsoft.Authorization/roleAssignments - Azure Event Hubs Data Receiver",
+//    //    "environment": "[parameters('para_target_env')]",
+//    //    "project": "[parameters('para_application_name')]"
+//    //  }
+//    //},
+//    {
+//      "type": "Microsoft.Authorization/roleAssignments",
+//      "apiVersion": "2022-04-01",
+//      "name": "[parameters('para_role3')]",
+//      "dependsOn": [
+//        "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')))]"
+//      ],
+//      "properties": {
+//        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4633458b-17de-408a-b874-0445c86b69e6')]",
+//        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name')),'2023-01-31', 'full').properties.principalId]"
+//      },
+//      "tags": {
+//        "displayName": "Microsoft.Authorization/roleAssignments - Key Vault Secrets User",
+//        "environment": "[parameters('para_target_env')]",
+//        "project": "[parameters('para_application_name')]"
+//      }
+//    }
+//  ],
+//  "outputs": {}
+//}
