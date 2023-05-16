@@ -10,6 +10,21 @@ using System.Net;
 
 namespace Sendmail
 {
+    public class MyEventType
+    {
+        public string? Id { get; set; }
+
+        public string? Topic { get; set; }
+
+        public string? Subject { get; set; }
+
+        public string? EventType { get; set; }
+
+        public DateTime? EventTime { get; set; }
+
+        public IDictionary<string, object>? Data { get; set; }
+    }
+
     public class Sendmail
     {
         private readonly ILogger _logger;
@@ -49,7 +64,7 @@ namespace Sendmail
 
         [Function("MailEventGridSubscription")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
-        public SignalRMessageAction MailEventGridSubscription([EventGridTrigger] EventGridEvent input)
+        public SignalRMessageAction MailEventGridSubscription([EventGridTrigger] MyEventType input)
         {
             _logger.LogInformation(input.Data.ToString());
             var data = Newtonsoft.Json.JsonConvert.SerializeObject(input);

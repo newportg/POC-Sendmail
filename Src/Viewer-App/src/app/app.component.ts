@@ -67,9 +67,9 @@ export class AppComponent {
       this.events.push(event);
       var jsonObject: any = JSON.parse(event);
 
-      var result = this.eventss.find(o => o.id === jsonObject.data.messageId);
+      var result = this.eventss.find(o => o.id === jsonObject.Data.messageId);
       if (result == null) {
-        var it = this.eventss.push(new Item(jsonObject.data.messageId, false, false, false, ""));
+        var it = this.eventss.push(new Item(jsonObject.Data.messageId, false, false, false, ""));
         this.eventss[it - 1].UpdateGrid(jsonObject);
       }
       if (result != null) {
@@ -142,25 +142,25 @@ export class Item {
 
   public UpdateGrid(source: any) {
 
-    if (source.eventType == "Microsoft.Communication.EmailDeliveryReportReceived") {
-      if (source.data.status == "Delivered") {
+    if (source.EventType == "Microsoft.Communication.EmailDeliveryReportReceived") {
+      if (source.Data.status == "Delivered") {
         this.gstatus = "Delivered";
         this.gdelivered = true;
       }
-      if (source.data.status == "Expanded") {
+      if (source.Data.status == "Expanded") {
         this.gstatus = "Expanded";
       }
-      if (source.data.status == "Failed") {
+      if (source.Data.status == "Failed") {
         this.gstatus = "Failed";
       }
     }
-    else if (source.eventType == "Microsoft.Communication.EmailEngagementTrackingReportReceived") {
-      if (source.data.engagementType == "view") {
+    else if (source.EventType == "Microsoft.Communication.EmailEngagementTrackingReportReceived") {
+      if (source.Data.engagementType == "view") {
         this.gstatus = "Viewed";
         this.gviewed = true;
       }
-      else if (source.data.engagementType == "click") {
-        this.gstatus = "Clicked :" + source.data.engagementContext;
+      else if (source.Data.engagementType == "click") {
+        this.gstatus = "Clicked :" + source.Data.engagementContext;
         this.gviewed = true;
       }
     }
