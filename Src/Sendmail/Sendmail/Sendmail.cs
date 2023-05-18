@@ -36,6 +36,7 @@ namespace Sendmail
 
         [Function("negotiate")]
         [OpenApiOperation(operationId: "negotiate")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration issue")]
         public SignalRConnectionInfo Negotiate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
             [SignalRConnectionInfoInput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")] SignalRConnectionInfo connectionInfo)
@@ -47,6 +48,7 @@ namespace Sendmail
         [Function("BroadcastToAll")]
         [OpenApiOperation(operationId: "BroadcastToAll")]
         [OpenApiRequestBody(contentType: "text/plain", bodyType: typeof(string), Description = "message", Example = typeof(string))]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = "Configuration issue")]
         [SignalROutput(HubName = "HubValue", ConnectionStringSetting = "SignalRCS")]
         public SignalRMessageAction BroadcastToAll([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
