@@ -776,10 +776,6 @@
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
 
-    //"ServiceBusConnection__fullyQualifiedNamespace":"evhns-poc-sendmail-vse-ne.servicebus.windows.net",
-    //"ServiceBusConnection__credential":"managedidentity",
-    //"ServiceBusConnection__clientId": "81178236-e2db-40cc-b0c6-2c5b9d8b9f8b",
-    //"ServiceBusConnection__tenantId": "55a71488-bbff-4451-a18d-a1bfa479293b",
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
@@ -798,24 +794,6 @@
       },
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
-    //{
-    //  "apiVersion": "2016-10-01",
-    //  "dependsOn": [
-    //    "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
-    //    "[resourceId('Microsoft.EventHub/namespaces', variables('var_evhns_name'))]"
-    //  ],
-    //  "name": "[concat(variables('var_kv_name'), '/ServiceBusConnection__credential')]",
-    //  "properties": {
-    //    "contentType": "text/plain",
-    //    "value": "managedidentity"
-    //  },
-    //  "tags": {
-    //    "displayName": "Microsoft.KeyVault/vaults/secrets - EventHub ServiceBusConnectioncredential",
-    //    "environment": "[parameters('para_target_env')]",
-    //    "project": "[parameters('para_application_name')]"
-    //  },
-    //  "type": "Microsoft.KeyVault/vaults/secrets"
-    //},
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
@@ -1020,39 +998,6 @@
         "topicType": "Microsoft.Communication.CommunicationServices"
       }
     }
-    ////{
-    ////  "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-    ////  "apiVersion": "2022-06-15",
-    ////  "name": "[concat(variables('var_evgt_name'), '/EmailSubscription')]",
-    ////  "dependsOn": [
-    ////    "[resourceId('Microsoft.EventGrid/systemTopics', variables('var_evgt_name'))]",
-    ////    "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventGridSubscription')]"
-    ////  ],
-    ////  "properties": {
-    ////    "destination": {
-    ////      "properties": {
-    ////        "resourceId": "[concat(resourceId('Microsoft.Web/sites', variables('var_azf_name')), '/functions/MailEventGridSubscription')]",
-    ////        "maxEventsPerBatch": 1,
-    ////        "preferredBatchSizeInKilobytes": 64
-    ////      },
-    ////      "endpointType": "AzureFunction"
-    ////    },
-    ////    "filter": {
-    ////      "includedEventTypes": [
-    ////        "Microsoft.Communication.EmailEngagementTrackingReportReceived",
-    ////        "Microsoft.Communication.EmailDeliveryReportReceived"
-    ////      ],
-    ////      "enableAdvancedFilteringOnArrays": true
-    ////    },
-    ////    "labels": [],
-    ////    "eventDeliverySchema": "EventGridSchema",
-    ////    "retryPolicy": {
-    ////      "maxDeliveryAttempts": 30,
-    ////      "eventTimeToLiveInMinutes": 1440
-    ////    }
-    ////  }
-    ////}
-
   ],
   "outputs": {
     "result": {
@@ -1063,17 +1008,5 @@
       "type": "string",
       "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('var_id_name'))]"
     }
-    //"email": {
-    //  "type": "string",
-    //  "value": "[concat('donotreply@',reference(resourceId('microsoft.communication/emailservices/domains', variables('var_csemail_name'), variables('var_csemaildom_name')), '2023-03-01-preview').fromSenderDomain)]"
-    //},
-    //"eventhubNS": {
-    //  "type": "string",
-    //  "value": "[variables('var_evhns_id')]"
-    //},
-    //"eventhub": {
-    //  "type": "string",
-    //  "value": "[variables('var_evh_name')]"
-    //}
   }
 }
