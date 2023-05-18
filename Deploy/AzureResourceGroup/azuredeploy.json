@@ -465,12 +465,12 @@
         "capacity": 1
       },
       "kind": "SignalR",
-      //"identity": {
-      //  //"type": "UserAssigned",
-      //  //"userAssignedIdentities": {
-      //  //  "[variables('var_uaid_name')]": {}
-      //  //}
-      //},
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('var_uaid_name')]": {}
+        }
+      },
       "properties": {
         "tls": {
           "clientCertEnabled": false

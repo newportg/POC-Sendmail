@@ -48,8 +48,6 @@ namespace Sendmail
                 })
                 .ConfigureAppConfiguration(config => config
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    //.AddJsonFile("local.settings.json", true, true)
-                    //.AddUserSecrets(Assembly.GetExecutingAssembly(), true)
                     .AddEnvironmentVariables())
                 .ConfigureServices((hostContext, services) =>
                 {
