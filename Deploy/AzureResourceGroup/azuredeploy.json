@@ -817,7 +817,7 @@
     {
       "apiVersion": "2016-10-01",
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]"
       ],
       "name": "[concat(variables('var_kv_name'), '/ServiceBusConnectionTenantId')]",
       "properties": {
