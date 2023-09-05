@@ -669,6 +669,24 @@
       "apiVersion": "2016-10-01",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
+        "[resourceId('Microsoft.Communication/CommunicationServices', variables('var_cs_name'))]"
+      ],
+      "name": "[concat(variables('var_kv_name'), '/CommunicationServicesEP')]",
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat('https://',variables('var_cs_name'),'.communication.azure.com')]"
+      },
+      "tags": {
+        "displayName": "Microsoft.KeyVault/vaults/secrets - CommunicationServicesEP",
+        "environment": "[parameters('para_target_env')]",
+        "project": "[parameters('para_application_name')]"
+      },
+      "type": "Microsoft.KeyVault/vaults/secrets"
+    },
+    {
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('var_kv_name'))]",
         "[resourceId('Microsoft.Communication/emailServices/domains', variables('var_csemail_name'), variables('var_csemaildom_name'))]"
       ],
       "name": "[concat(variables('var_kv_name'), '/FromEmailAddress')]",
@@ -832,7 +850,6 @@
       "type": "Microsoft.KeyVault/vaults/secrets"
     },
 
-
     // Azure Function
     {
       "apiVersion": "2021-02-01",
@@ -942,6 +959,7 @@
         "AzureStorageKey": "[concat(listKeys(variables('var_str_resId'),'2015-05-01-preview').key1) ]",
 
         "CommunicationServicesCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=CommunicationServicesCS)')]",
+        "CommunicationServicesEP": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=CommunicationServicesEP)')]",
         "FromEmailAddress": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=FromEmailAddress)')]",
         "HubSqlConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=HubSqlConnection)')]",
         "SignalRCS": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=SignalRCS)')]",
@@ -952,6 +970,7 @@
         "ServiceBusConnection__credential": "managedidentity",
         "ServiceBusConnection__clientId": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=ServiceBusConnectionClientId)')]",
         "ServiceBusConnection__tenantId": "[concat('@Microsoft.KeyVault(VaultName=', variables('var_kv_name'), ';SecretName=ServiceBusConnectionTenantId)')]"
+
       },
       "tags": {
         "displayName": "[concat('Function Settings- ', variables('var_azf_name'))]",

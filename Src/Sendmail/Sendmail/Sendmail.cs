@@ -1,6 +1,8 @@
 using Azure;
 using Azure.Communication.Email;
+using Azure.Identity;
 using Azure.Messaging.EventGrid;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -101,18 +103,38 @@ namespace Sendmail
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
+            var cred = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = Environment.GetEnvironmentVariable("ServiceBusConnection__clientId") });
+            var client = new SecretClient(new Uri("https://kv-poc-sendmail-vse-ne.vault.azure.net/"), cred);
+            var val = client.GetSecret("ServiceBusConnectionTenantId");     
+            _logger.LogInformation($"Secret client : {val.Value.Value}");
+
+
+
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
             // Find your Communication Services resource in the Azure portal
-            var connectionString = Environment.GetEnvironmentVariable("CommunicationServicesCS");
-            EmailClient emailClient = new EmailClient(connectionString);
+            //var connectionString = Environment.GetEnvironmentVariable("CommunicationServicesCS");
+            //EmailClient emailClient = new EmailClient(connectionString);
 
             // ID Token
             //string endpoint = "https://cs-poc-sendmail-vse-ne.communication.azure.com";
             //TokenCredential tokenCredential = new DefaultAzureCredential();
             //tokenCredential = new DefaultAzureCredential();
             //EmailClient emailClient = new EmailClient(new Uri(endpoint), tokenCredential);
+
+
+            //var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = Environment.GetEnvironmentVariable("ServiceBusConnection__clientId")  });
+            //string? endpoint = Environment.GetEnvironmentVariable("CommunicationServicesEP");
+//            string? endpoint = Environment.GetEnvironmentVariable("CommunicationServicesEP");
+            //if (endpoint == null)
+            //{
+            //    response.WriteString($"ACS endpoint is null");
+            //    return response;
+            //}
+            var emailClient = new EmailClient(new Uri("https://cs-poc-sendmail-vse-ne.communication.azure.com/"), cred);
+            _logger.LogInformation($"Email Client ");
+
 
             try
             {
@@ -122,7 +144,7 @@ namespace Sendmail
                     recipientAddress: "gary.newport@zoomalong.co.uk",
 
                     subject: "This is the subject",
-                    htmlContent: "<html><body>This is the html body http://maps.google.com </body></html>");
+                    htmlContent: "<html><body>This is the html body <a href=\"http://maps.google.com\">Google Maps</a> <a href=\"https://www.w3schools.com\">Visit W3Schools.com!</a></body></html>");
                 Console.WriteLine($"Email Sent. Status = {emailSendOperation.Value.Status}");
 
                 /// Get the OperationId so that it can be used for tracking the message for troubleshooting

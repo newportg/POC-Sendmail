@@ -1,0 +1,63 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\NEWPORTG\\source\\Personal\\Azure Functions\\POC-Sendmail\\Src\\Sendmail\\Sendmail\\Sendmail.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\NEWPORTG\\source\\Personal\\Azure Functions\\POC-Sendmail\\Src\\Sendmail\\Sendmail\\Sendmail.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\NEWPORTG\\source\\Personal\\Azure Functions\\POC-Sendmail\\Src\\Sendmail\\Sendmail\\Sendmail.csproj",
+        "projectName": "BlazorWeb-SendMail",
+        "projectPath": "C:\\Users\\NEWPORTG\\source\\Personal\\Azure Functions\\POC-Sendmail\\Src\\Sendmail\\Sendmail\\Sendmail.csproj",
+        "packagesPath": "C:\\Users\\NEWPORTG\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\NEWPORTG\\source\\Personal\\Azure Functions\\POC-Sendmail\\Src\\BlazorWeb-SendMail\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\NEWPORTG\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Kf-GaryNewport/Library.Azure.Odata/_packaging/GarysAzurePackageFeed/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "browser-wasm": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

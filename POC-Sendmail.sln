@@ -32,6 +32,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sendmail", "Src\Sendmail\Se
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "IdentityPermissions", "Deploy\IdentityPermissions\IdentityPermissions.deployproj", "{0F2F0EBD-15F1-4ECE-8FEA-902B408B2932}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poc-oboauth", "..\..\AzureAuth\poc-oboauth\Src\poc-oboauth\poc-oboauth.csproj", "{012768AE-2E43-48E9-8DB6-7DBD1E511B7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{0F2F0EBD-15F1-4ECE-8FEA-902B408B2932}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F2F0EBD-15F1-4ECE-8FEA-902B408B2932}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F2F0EBD-15F1-4ECE-8FEA-902B408B2932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{012768AE-2E43-48E9-8DB6-7DBD1E511B7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{012768AE-2E43-48E9-8DB6-7DBD1E511B7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{012768AE-2E43-48E9-8DB6-7DBD1E511B7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{012768AE-2E43-48E9-8DB6-7DBD1E511B7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +71,7 @@ Global
 		{CD89C16D-ED32-4FF7-B73B-DE5B1190E25F} = {3F1A4657-3768-4123-9EF8-DDC86BD9F18B}
 		{64C4D717-FC80-4F84-B2D1-241A7D129D78} = {3F1A4657-3768-4123-9EF8-DDC86BD9F18B}
 		{0F2F0EBD-15F1-4ECE-8FEA-902B408B2932} = {1BB3BB69-4D40-468E-9FC5-A0CBF06DF878}
+		{012768AE-2E43-48E9-8DB6-7DBD1E511B7D} = {3F1A4657-3768-4123-9EF8-DDC86BD9F18B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {96AA6F2B-D021-48FA-A716-B73042C392A6}

@@ -4,9 +4,13 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
 
-    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=dA4qg9jV0MAu0gjlUTCWgsD+fqVPc1pVViuNQ7eMm4kSwCS/73IL0YcSHixakrPleSSLFom6or7AqAtaYqHNTw==",
-    "FromEmailAddress": "DoNotReply@9ddee041-234e-42f8-b048-c0c7a9b811e1.azurecomm.net",
-    "HubSqlConnection": "Server=HubCharlieSQL01.SA1.KF-INT.COM;Database=Hub.IntegrationTests.cdd-drl-dwn;Integrated Security=false;User ID=sa;Password=$Kf@admin;TrustServerCertificate=true;",
+    "AZURE_TENANT_ID": "55a71488-bbff-4451-a18d-a1bfa479293b",
+    "AZURE_CLIENT_ID": "0567b7cd-91af-45ba-8116-b2a3becea91f",
+
+    "CommunicationServicesEP": "https://cs-poc-sendmail-vse-ne.communication.azure.com",
+    "CommunicationServicesCS": "endpoint=https://acs-poc-sendmail-vse-ne.communication.azure.com/;accesskey=B7sYx7OKGxLu6PNet8M37u6HHBD6Iyw95LeKN9n6jQXJe2ARpIWhXfLDD3A/SYHy5zVuqpK+9986XmzfiOT2Tg==",
+    "FromEmailAddress": "DoNotReply@5bef9b38-37ca-4a63-a22c-108a6821240d.azurecomm.net",
+    //"HubSqlConnection": "Server=HubCharlieSQL01.SA1.KF-INT.COM;Database=Hub.IntegrationTests.cdd-drl-dwn;Integrated Security=false;User ID=sa;Password=$Kf@admin;TrustServerCertificate=true;",
 
     //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;Authentication=Managed Identity",
     //"EventHubCS": "Endpoint=sb://evhns-poc-sendmail-vse-ne.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Hv4oV3vmqps20dpieNI4oMy8ApH1zItWv+AEhLJFRVk=",
@@ -14,18 +18,18 @@
 
     "ServiceBusConnection__fullyQualifiedNamespace": "evhns-poc-sendmail-vse-ne.servicebus.windows.net",
     "ServiceBusConnection__credential": "managedidentity",
-    "ServiceBusConnection__clientId": "fc675d0b-ec84-47f4-94f9-92aaf4d6bcc7",
+    "ServiceBusConnection__clientId": "0567b7cd-91af-45ba-8116-b2a3becea91f",
 
     // AccessKey
-    "SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=Bm1eNmfZ9zT9LQvH9y7tC8HxhdjsK9yLeV1gFFa/Vzs=;Version=1.0;",
+    //"SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=Bm1eNmfZ9zT9LQvH9y7tC8HxhdjsK9yLeV1gFFa/Vzs=;Version=1.0;",
     //"AzureSignalRConnectionString": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AccessKey=Bm1eNmfZ9zT9LQvH9y7tC8HxhdjsK9yLeV1gFFa/Vzs=;Version=1.0;",
 
     // MSI
     //"SignalRCS": "Endpoint=https://sigr-poc-sendmail-vse-ne.service.signalr.net;AuthType=azure.msi;ClientId=fc675d0b-ec84-47f4-94f9-92aaf4d6bcc7;Version=1.0;"
 
-    //"SignalRCS__serviceUri": "https://sigr-poc-sendmail-vse-ne.service.signalr.net",
-    //"SignalRCS__credential": "managedidentity",
-    //"SignalRCS__clientId": "fc675d0b-ec84-47f4-94f9-92aaf4d6bcc7"
+    "SignalRCS__serviceUri": "https://sigr-poc-sendmail-vse-ne.service.signalr.net",
+    "SignalRCS__credential": "managedidentity",
+    "SignalRCS__clientId": "0567b7cd-91af-45ba-8116-b2a3becea91f"
   },
   "Host": {
     "CORS": "http://localhost:4200",
